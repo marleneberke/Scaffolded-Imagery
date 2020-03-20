@@ -14,7 +14,9 @@
         <!--//     Your jsPsych plugins here    \\-->
         
         
-        <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>    
+        <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>
+        <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-RDK.js"></script>
+        <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-grid.js"></script>
         
         
         <!--\\                                 //-->
@@ -65,14 +67,16 @@
         // ctx.beginPath();
         // ctx.rect(20, 20, 150, 100);
         // ctx.stroke();
-        
-        
-        
-        
+
         // Make your experiment
-        var hello_trial = {
-          type: 'html-keyboard-response',
-          stimulus: 'Hello world! <br/> Press any key to end the experiment.'
+        // var hello_trial = {
+        //   type: 'html-keyboard-response',
+        //   stimulus: 'Hello world! <br/> Press any key to end the experiment.'
+        // };
+
+        var grid = {
+            type: 'grid',
+            trial_duration: 500
         };
         
         
@@ -81,7 +85,8 @@
         var timeline = [];
         
         //Push the trials into the timeline array
-        timeline.push(hello_trial);
+        //timeline.push(hello_trial);
+        timeline.push(grid);
         
         
         
