@@ -16,7 +16,7 @@ jsPsych.plugins["grid"] = (function() {
 	var plugin = {};
 
 	plugin.info = {
-	    name: "draw-grid",
+	    name: "grid",
 			parameters: {
 		    // choices: {
 		    //   type: jsPsych.plugins.parameterType.INT,
@@ -28,7 +28,7 @@ jsPsych.plugins["grid"] = (function() {
 		    trial_duration: {
 		      type: jsPsych.plugins.parameterType.INT,
 		      pretty_name: "Trial duration",
-		      default: 10000,
+		      default: 5000,
 		      description: "The length of stimulus presentation"
 		    },
 				frame_duration: {
@@ -59,14 +59,14 @@ jsPsych.plugins["grid"] = (function() {
 		    animation_duration: {
 		      type: jsPsych.plugins.parameterType.FLOAT,
 		      pretty_name: "Duration of animation",
-		      default: 5000,
+		      default: 3000,
 		      description: "How long the animation takes. Must be less than duration of trial"
 		    },
-		    text_above: {																	//Martin
-		      type: jsPsych.plugins.parameterType.STRING,									//Martin
-		      pretty_name: "Text above",													//Martin
-		      default: "hello",																	//Martin
-		      description: "Text to place above grid"								//Martin
+		    text_above: {
+		      type: jsPsych.plugins.parameterType.STRING,
+		      pretty_name: "Text above",
+		      default: "",
+		      description: "Text to place above grid"
 		    }
 	    }
 	 }
@@ -132,7 +132,7 @@ jsPsych.plugins["grid"] = (function() {
 		//Add the text
 		ctx.textAlign = "center";
 	  ctx.font = "30px Arial";
-		ctx.fillText(text_above, canvasWidth/2, canvasHeight/5);
+		ctx.fillText(text_above, canvasWidth/2, canvasHeight/3);
 
 
 
@@ -143,7 +143,7 @@ jsPsych.plugins["grid"] = (function() {
 
 		//parameters for the grid
 		var dim = 3 //3x3 grid of squares
-		var grid_side_length = canvasHeight/2
+		var grid_side_length = canvasHeight/4
 		var square_side_length = grid_side_length/dim
 		var x = canvasWidth/2 - grid_side_length/2 //upper left corner of grid
 		var y = canvasHeight/2 - grid_side_length/2 //upper left corner of grid
