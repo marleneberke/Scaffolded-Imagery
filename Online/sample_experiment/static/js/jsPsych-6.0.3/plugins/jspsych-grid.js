@@ -15,6 +15,8 @@ jsPsych.plugins["grid"] = (function() {
 
 	var plugin = {};
 
+	jsPsych.pluginAPI.registerPreload('grid', 'stimulus', 'image');
+
 	plugin.info = {
 	    name: "grid",
 			parameters: {
@@ -67,6 +69,12 @@ jsPsych.plugins["grid"] = (function() {
 		      pretty_name: "Text above",
 		      default: "",
 		      description: "Text to place above grid"
+		    },
+				shape_in_text: {
+		      type: jsPsych.plugins.parameterType.STRING,
+		      pretty_name: "Shape in text",
+		      default: [],
+		      description: "Key for the shape to draw in text"
 		    }
 	    }
 	 }
@@ -87,6 +95,7 @@ jsPsych.plugins["grid"] = (function() {
 		var brightness_change = trial.brightness_change; //The amount by which the brightness of the blocks specified in bright_block_IDs change
 		var animation_duration = trial.animation_duration; //Time for fade-in
 		var text_above = trial.text_above; //The text displayed above the grid
+		var shape_in_text = trial.shape_in_text; // The shape to draw near the text. Is something like [0,1,2,4,7] for a T, for instance
 
 
 		//--------------------------------------
@@ -132,8 +141,107 @@ jsPsych.plugins["grid"] = (function() {
 		//Add the text
 		ctx.textAlign = "center";
 	  ctx.font = "30px Arial";
-		ctx.fillText(text_above, canvasWidth/2, canvasHeight/3);
+		ctx.fillText(text_above, canvasWidth/2, canvasHeight/4);
 
+		//Add the shape
+		ctx.lineWidth = 8;
+		starting_x = canvasWidth/2
+		starting_y = canvasHeight/3 - 20
+		if (shape_in_text.toString() == "0,1,2,3,6"){
+			//horizontal line
+			ctx.beginPath();
+			ctx.moveTo(starting_x - 10, starting_y);
+			ctx.lineTo(starting_x + 10, starting_y);
+			ctx.stroke();
+			//vertical line
+			ctx.beginPath();
+			ctx.moveTo(starting_x - 10, starting_y - 4);
+			ctx.lineTo(starting_x - 10, starting_y + 20);
+			ctx.stroke();
+		} else if (shape_in_text.toString() == "0,1,2,5,8") {
+			//horizontal line
+			ctx.beginPath();
+			ctx.moveTo(starting_x - 10, starting_y);
+			ctx.lineTo(starting_x + 10, starting_y);
+			ctx.stroke();
+			//vertical line
+			ctx.beginPath();
+			ctx.moveTo(starting_x + 10, starting_y - 4);
+			ctx.lineTo(starting_x + 10, starting_y + 20);
+			ctx.stroke();
+		} else if (shape_in_text.toString() == "0,3,6,7,8") {
+			//horizontal line
+			ctx.beginPath();
+			ctx.moveTo(starting_x, starting_y + 12);
+			ctx.lineTo(starting_x + 24, starting_y + 12);
+			ctx.stroke();
+			//vertical line
+			ctx.beginPath();
+			ctx.moveTo(starting_x, starting_y - 12);
+			ctx.lineTo(starting_x, starting_y + 16);
+			ctx.stroke();
+		} else if (shape_in_text.toString() == "2,5,8,6,7") {
+			//want to shift the whole thing up and left
+
+			//horizontal line
+			ctx.beginPath();
+			ctx.moveTo(starting_x - 12, starting_y + 10);
+			ctx.lineTo(starting_x + 12, starting_y + 10);
+			ctx.stroke();
+			//vertical line
+			ctx.beginPath();
+			ctx.moveTo(starting_x + 12, starting_y - 14);
+			ctx.lineTo(starting_x + 12, starting_y + 14);
+			ctx.stroke();
+		} else if (shape_in_text.toString() == "0,1,2,4,7"){
+			//horizontal line
+			ctx.beginPath();
+			ctx.moveTo(starting_x - 12, starting_y);
+			ctx.lineTo(starting_x + 12, starting_y);
+			ctx.stroke();
+			//vertical line
+			ctx.beginPath();
+			ctx.moveTo(starting_x, starting_y - 4);
+			ctx.lineTo(starting_x, starting_y + 20);
+			ctx.stroke();
+		} else if (shape_in_text.toString() == "1,4,6,7,8"){
+			//horizontal line
+			ctx.beginPath();
+			ctx.moveTo(starting_x - 16, starting_y + 20);
+			ctx.lineTo(starting_x + 16, starting_y + 20);
+			ctx.stroke();
+			//vertical line
+			ctx.beginPath();
+			ctx.moveTo(starting_x, starting_y - 4);
+			ctx.lineTo(starting_x, starting_y + 20);
+			ctx.stroke();
+		} else if (shape_in_text.toString() == "0,3,6,4,5"){
+			//horizontal line
+			ctx.beginPath();
+			ctx.moveTo(starting_x - 6, starting_y);
+			ctx.lineTo(starting_x + 18, starting_y);
+			ctx.stroke();
+			//vertical line
+			ctx.beginPath();
+			ctx.moveTo(starting_x - 2, starting_y - 14);
+			ctx.lineTo(starting_x - 2, starting_y + 14);
+			ctx.stroke();
+		} else if (shape_in_text.toString() == "3,4,5,2,8"){
+			//horizontal line
+			ctx.beginPath();
+			ctx.moveTo(starting_x - 6, starting_y);
+			ctx.lineTo(starting_x + 18, starting_y);
+			ctx.stroke();
+			//vertical line
+			ctx.beginPath();
+			ctx.moveTo(starting_x + 14, starting_y - 14);
+			ctx.lineTo(starting_x + 14, starting_y + 14);
+			ctx.stroke();
+		}
+
+
+		//set line width back to normal for drawing grid later
+		ctx.lineWidth = 1;
 
 
 		//--------Set up Canvas end-------

@@ -98,10 +98,9 @@
         //Timeline array to be fed into the jsPsych.init function
         var timeline = [];
 
-        //12 shapes
+        //8 shapes
         var shapes = [[0,1,2,3,6], [0,1,2,5,8], [0,3,6,7,8], [2,5,8,6,7],
-        [0,1,2,4,7], [1,4,6,7,8], [0,3,6,4,5], [3,4,5,2,8], [0,1,3,6,7],
-        [1,2,5,8,7], [0,1,2,3,5], [3,6,7,8,5]];
+        [0,1,2,4,7], [1,4,6,7,8], [0,3,6,4,5], [3,4,5,2,8]];
 
         var q_conf = {
             type: 'html-keyboard-response',
@@ -115,16 +114,13 @@
               }
               };
 
-        //How many trials of staircasing to do
-        var num_trials = 10;
-
-        //staircase(num_trials, timeline, pest, shapes, q_conf);
+        staircase(timeline, pest, shapes, q_conf);
 
 
         //block with no imagery.
         //block_with_no_imagery(timeline, shapes, q_conf);
 
-        block_with_imagery(timeline, shapes, q_conf);
+        //block_with_imagery(timeline, shapes, q_conf);
 
 
 
@@ -133,8 +129,8 @@
 
         //The staircase function pushes everything needed for staircasing
         //to the timeline
-        function staircase(num_trials, timeline, pest, shapes, q_conf){
-
+        function staircase(timeline, pest, shapes, q_conf){
+          var num_trials = 10;
           //possible shapes or empty
           var temp = shapes;
           var empties = [];
@@ -200,9 +196,10 @@
         };
 
         function block_with_no_imagery(timeline, shapes, q_conf){
-          var num_trials = 48; //best as multiples of 12 for the 12 patterns
+          var num_trials = 16; //best as multiples of 8 for the 8 shapes
           //double the trials with a shape in them
-          var temp = shapes.concat(shapes);
+          var temp = shapes;
+          //var factor = num_trials/length(shapes);
           var empties = [];
           for (i = 0; i < temp.length; i++){
             empties.push([]);
@@ -267,45 +264,39 @@
         } //end block_with_no_imagery function
 
         function block_with_imagery(timeline, shapes, q_conf){
-          var num_trials = 48; //best as multiples of 12 for the 12 patterns
-          var num_shapes_to_imagine = 4;
-          var trials_per_imagined_shape = 12;
+          var num_trials = 32; //best as multiples of 8 for the 8 patterns
+          var num_shapes_to_imagine = 8;
+          var trials_per_imagined_shape = 4;
 
-          var imagine = ["Imagine the shape T", "Imagine the shape L",
-          "Imagine the shape [", "Imagine the shape ]"];
-
-          var instructions = [];
-          var trials = []; //holds the shapes
+          var trials = []; //holds the shapes to be displayed
+          var imagine = []; //holds the shapes to imagine
 
           //build instructions and stim
           for (s = 0; s < num_shapes_to_imagine; s++){
             for (t = 0; t < trials_per_imagined_shape; t++){
-              instructions.push(imagine[s]);
-              //if less than 6
+              imagine.push(shapes[s]);
+              //for half the trials, nothing will be displayed
               if (t < trials_per_imagined_shape/2){
                 trials.push([]);
-                //if less than 9
+              //for a quarter of the trials, some other shape will be displayed
               } else if (t < trials_per_imagined_shape*3/4) {
                 //sample randomly from shapes, with replacement
-                trials.push(shapes[Math.floor(Math.random()*shapes.length)]);
+                var sampled = shapes[Math.floor(Math.random()*shapes.length)];
+                //if it sampled the same shape as is beging imagined, sample again
+                while (sampled == shapes[s]){
+                  sampled = shapes[Math.floor(Math.random()*shapes.length)];
+                }
+                trials.push(sampled);
                 //else, sample the same shape as imagined
               } else {
-                if (imagine[s] == "Imagine the shape T"){
-                  trials.push([0,1,2,4,7]);
-                } else if (imagine[s] == "Imagine the shape L") {
-                  trials.push([0,3,6,7,8]);
-                } else if (imagine[s] == "Imagine the shape ["){
-                  trials.push([0,3,6,1,7]);
-                } else if (imagine[s] == "Imagine the shape ]"){
-                  trials.push([1,2,5,8,7]);
-                }
+                trials.push(shapes[s]);
               } //end of else
             } //end of inner for loop
           } //end of outer for loop
 
           //throw an error if length of trials is not equal to num_trials
           try {
-            if(trials.length != num_trials || instructions.length != num_trials){
+            if(trials.length != num_trials || imagine.length != num_trials){
               throw "mismatch between num_trials and length of trials"
             }
           }
@@ -313,11 +304,10 @@
               message.innerHTML = "Input " + err;
           }
 
-
           //shuffles both the arrays
-          shuffle_both(instructions, trials);
-          console.log("instructions", instructions);
-          console.log("trials", trials);
+          shuffle_both(imagine, trials);
+          console.log("imagine ", imagine);
+          console.log("trials ", trials);
 
           for (i = 0; i < num_trials; i++){
 
@@ -325,8 +315,8 @@
               type: 'grid',
               frame_duration: 50,
               bright_block_IDs: function(){
+                //why can't I do this statically? -- ans: because I need access to these values?
                 bright_block_IDs = trials.shift(); //removes first element from trials
-                console.log("bright_block_IDs ", bright_block_IDs)
                 return bright_block_IDs;
               },
               //change: change,
@@ -335,10 +325,10 @@
                 //want to make it dynamic so staircasing will work
                 return current_brightness_change
               },
-              text_above: function(){
-                text_above = instructions.shift(); //removes first element from instructions
-                console.log("text_above ", text_above)
-                return text_above;
+              text_above: "Imagine the shape: ",
+              shape_in_text: function(){
+                shape_in_text = imagine.shift(); //removes first element from imagine
+                return shape_in_text;
               }
             };
 
