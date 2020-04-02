@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!--Change the title-->
+        <title>sampleExperiment</title>
+
+        <!--jsPsych necessities start-->
+        <script src="../static/js/jsPsych-6.0.3/jspsych.js"></script>
+        <script src="../static/js/pest.js"></script>
+        <link href="../static/js/jsPsych-6.0.3/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+        <!--jsPsych necessities end-->
+
+        <!--jsPsych plugins start-->
+        <!--//////////////////|\\\\\\\\\\\\\\\\\\-->
+        <!--//     Your jsPsych plugins here    \\-->
+
+
+        <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>
+        <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-RDK.js"></script>
+        <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-grid.js"></script>
+
+
+        <!--\\                                 //-->
+        <!--\\\\\\\\\\\\\\\\\\|//////////////////-->
+        <!--jsPsych plugins end-->
+
+        <!--PsiTurk inserts start-->
+        <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="../static/lib/underscore-min.js" type="text/javascript"> </script>
+        <script src="../static/lib/backbone-min.js" type="text/javascript"> </script>
+        <script src="../static/lib/d3.v3.min.js" type="text/javascript"> </script>
+        <!-- These variables are necessary to implement psiTurk -->
+        <script type="text/javascript">
+            // These fields provided by the psiTurk Server
+            var uniqueId = "{{ uniqueId }}"; // a unique string identifying the worker/task
+            var adServerLoc = "{{ adServerLoc }}"; // the location of your ad (so you can send user back at end of experiment)
+            var mode = "{{ mode }}"; // is this running live, sandbox, or in debug mode?
+        </script>
+        <!-- utils.js and psiturk.js provide the basic psiturk functionality -->
+        <script src="../static/js/utils.js" type="text/javascript"></script>
+        <script src="../static/js/psiturk.js" type="text/javascript"></script>
+        <!--PsiTurk inserts end-->
+    </head>
+    <body>
+    </body>
+    <script>
+
+        //Data switches
+        var psiTurkIsOn = 0;   // 0: Test locally.  1: Test/Run on psiTurk
+        var savingLocally = 1; // 0: Nothing.       1: Download CSV file
+        var displayData = 1;   // 0: Nothing.       1: Display data on browser
+        var username = '';     // Username for psiturk server
+        var tableName = '';    // MySQL Table Name
+        var folderName = '';   // Folder containing the experiment
+
+
+        // Load psiturk
+        if (psiTurkIsOn){
+          var psiturk = new PsiTurk(uniqueId, adServerLoc, mode);
+        }
+
+        ///////////////////////////////////////////////////////////////
+        //-----------------Your code below this line-----------------//
+
+        var timeline = [];
+
+        var grid = {
+            type: 'grid',
+            frame_duration: 50,
+            text_above: "Imagine this shape:",
+            shape_in_text: [0,1,2,3,6]
+        };
+
+        timeline.push(grid);
+
+
+
+        //-----------------Helper functions-----------------//
+
+
+        //-----------------Your code above this line-----------------//
+        ///////////////////////////////////////////////////////////////
+
+
+        //---------Run the experiment---------
+
+        //Initiate the experiment
+        jsPsych.init({
+          timeline: timeline,
+          on_finish: function(){ //Execute this when the experiment finishes
+            if(savingLocally){
+              jsPsych.data.get().localSave('csv','testSave.csv'); //Save the data locally in a .csv file
+            }
+            if(displayData){
+              jsPsych.data.displayData(); //Display the data onto the browser screen
+            }
+            if(psiTurkIsOn){
+              psiturk.saveData({
+                success: function(){
+                  psiturk.completeHIT(); //Complete the HIT
+                }
+              });
+            }
+          },
+          on_trial_finish: function(){ //Execute this after every trial
+            if (psiTurkIsOn){
+              save_data(tableName, [jsPsych.data.get().last(1).values()[0]]);
+            }
+          }
+        });
+
+
+        //------psiTurk Functions Begin------
+
+        //A function to save the data to the SQL table on the psiturk server.  This gets called at the end of the file.
+        function save_data(data_table,data){
+
+          //Retrieve data from psiTurk and add to jsPsych data
+          jsPsych.data.addProperties(
+            {
+              workerId: psiturk.taskdata.get('workerId'),
+              assignmentId: psiturk.taskdata.get('assignmentId'),
+              hitId: psiturk.taskdata.get('hitId')
+            }
+          );
+
+          //Use AJAX to post the data onto the psiturk server
+          $.ajax({
+            type:'post',
+            cache: false,
+            url: 'https://psiturk.psych.ucla.edu/~' + username + '/' + folderName + '/templates/savedata.php',
+            data: {
+              table: data_table,
+              json: JSON.stringify(data),
+            },
+            success: function(output) { console.log(output); } // write the result to javascript console
+          });
+        }
+
+        //------psiTurk Functions End------
+
+
+
+    </script>
+</html>
