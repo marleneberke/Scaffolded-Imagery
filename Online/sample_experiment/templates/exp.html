@@ -1,449 +1,634 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <!--Change the title-->
-        <title>sampleExperiment</title>
+<head>
+  <!--Change the title-->
+  <title>sampleExperiment</title>
 
-        <!--jsPsych necessities start-->
-        <script src="../static/js/jsPsych-6.0.3/jspsych.js"></script>
-        <script src="../static/js/pest.js"></script>
-        <link href="../static/js/jsPsych-6.0.3/css/jspsych.css" rel="stylesheet" type="text/css"></link>
-        <!--jsPsych necessities end-->
+  <!--jsPsych necessities start-->
+  <script src="../static/js/jsPsych-6.0.3/jspsych.js"></script>
+  <script src="../static/js/pest.js"></script>
+  <link href="../static/js/jsPsych-6.0.3/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+  <!--jsPsych necessities end-->
 
-        <!--jsPsych plugins start-->
-        <!--//////////////////|\\\\\\\\\\\\\\\\\\-->
-        <!--//     Your jsPsych plugins here    \\-->
-
-
-        <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>
-        <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-RDK.js"></script>
-        <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-grid.js"></script>
+  <!--jsPsych plugins start-->
+  <!--//////////////////|\\\\\\\\\\\\\\\\\\-->
+  <!--//     Your jsPsych plugins here    \\-->
 
 
-        <!--\\                                 //-->
-        <!--\\\\\\\\\\\\\\\\\\|//////////////////-->
-        <!--jsPsych plugins end-->
-
-        <!--PsiTurk inserts start-->
-        <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-        <script src="../static/lib/underscore-min.js" type="text/javascript"> </script>
-        <script src="../static/lib/backbone-min.js" type="text/javascript"> </script>
-        <script src="../static/lib/d3.v3.min.js" type="text/javascript"> </script>
-        <!-- These variables are necessary to implement psiTurk -->
-        <script type="text/javascript">
-            // These fields provided by the psiTurk Server
-            var uniqueId = "{{ uniqueId }}"; // a unique string identifying the worker/task
-            var adServerLoc = "{{ adServerLoc }}"; // the location of your ad (so you can send user back at end of experiment)
-            var mode = "{{ mode }}"; // is this running live, sandbox, or in debug mode?
-        </script>
-        <!-- utils.js and psiturk.js provide the basic psiturk functionality -->
-        <script src="../static/js/utils.js" type="text/javascript"></script>
-        <script src="../static/js/psiturk.js" type="text/javascript"></script>
-        <!--PsiTurk inserts end-->
-    </head>
-    <body>
-    </body>
-    <script>
-
-        //Data switches
-        var psiTurkIsOn = 0;   // 0: Test locally.  1: Test/Run on psiTurk
-        var savingLocally = 1; // 0: Nothing.       1: Download CSV file
-        var displayData = 1;   // 0: Nothing.       1: Display data on browser
-        var username = '';     // Username for psiturk server
-        var tableName = '';    // MySQL Table Name
-        var folderName = '';   // Folder containing the experiment
+  <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>
+  <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-instructions.js"></script>
+  <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-RDK.js"></script>
+  <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-grid.js"></script>
 
 
-        // Load psiturk
-        if (psiTurkIsOn){
-          var psiturk = new PsiTurk(uniqueId, adServerLoc, mode);
+  <!--\\                                 //-->
+  <!--\\\\\\\\\\\\\\\\\\|//////////////////-->
+  <!--jsPsych plugins end-->
+
+  <!--PsiTurk inserts start-->
+  <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="../static/lib/underscore-min.js" type="text/javascript"> </script>
+  <script src="../static/lib/backbone-min.js" type="text/javascript"> </script>
+  <script src="../static/lib/d3.v3.min.js" type="text/javascript"> </script>
+  <!-- These variables are necessary to implement psiTurk -->
+  <script type="text/javascript">
+  // These fields provided by the psiTurk Server
+  var uniqueId = "{{ uniqueId }}"; // a unique string identifying the worker/task
+  var adServerLoc = "{{ adServerLoc }}"; // the location of your ad (so you can send user back at end of experiment)
+  var mode = "{{ mode }}"; // is this running live, sandbox, or in debug mode?
+  </script>
+  <!-- utils.js and psiturk.js provide the basic psiturk functionality -->
+  <script src="../static/js/utils.js" type="text/javascript"></script>
+  <script src="../static/js/psiturk.js" type="text/javascript"></script>
+  <!--PsiTurk inserts end-->
+</head>
+<body>
+</body>
+<script>
+
+//Data switches
+var psiTurkIsOn = 0;   // 0: Test locally.  1: Test/Run on psiTurk
+var savingLocally = 1; // 0: Nothing.       1: Download CSV file
+var displayData = 1;   // 0: Nothing.       1: Display data on browser
+var username = '';     // Username for psiturk server
+var tableName = '';    // MySQL Table Name
+var folderName = '';   // Folder containing the experiment
+
+
+// Load psiturk
+if (psiTurkIsOn){
+  var psiturk = new PsiTurk(uniqueId, adServerLoc, mode);
+}
+
+///////////////////////////////////////////////////////////////
+//-----------------Your code below this line-----------------//
+
+var starting_brightness = 170
+//at most, squares can become white
+var maximum_brightness_change = 255 - starting_brightness
+var starting_brightness_change = 25
+var current_brightness_change = starting_brightness_change; //keeps track of current value in staircase
+
+//Variables for 3 Down / 1 Up
+var down_threshold = 3; // 3 Down
+var up_threshold = 1; // 1 Up
+var upper_brightness_change_limit = maximum_brightness_change;
+var lower_brightness_change_limit = 0.0;
+var correct_streak_counter = 0;
+var incorrect_streak_counter = 0;
+
+//Variables for PEST
+var current_step_size = 20; //Global variable to hold the current step size
+var minimum_step_size = 1; //Smallest step size
+var maximum_step_size = 20; //Largest step size
+
+//Create the parameter object for PEST
+var pestParameters = {
+  starting_intensity: starting_brightness_change,
+  down_threshold: down_threshold,
+  up_threshold: up_threshold,
+  upper_intensity_limit: upper_brightness_change_limit,
+  lower_intensity_limit: lower_brightness_change_limit,
+  starting_step_size: current_step_size,
+  min_step_size: minimum_step_size,
+  max_step_size: maximum_step_size
+};
+
+var pest = new pest(pestParameters);
+
+//Timeline array to be fed into the jsPsych.init function
+var timeline = [];
+
+//8 shapes
+var shapes = [[0,1,2,3,6], [0,1,2,5,8], [0,3,6,7,8], [2,5,8,6,7],
+[0,1,2,4,7], [1,4,6,7,8], [0,3,6,4,5], [3,4,5,2,8]];
+
+var q_conf = {
+  type: 'html-keyboard-response',
+  stimulus: [
+    'How confident are you? <p> (Press 1 for confident and 2 for unsure)'
+  ],
+  choices: ["1", "2"],
+  data: {descriptive_trial_type: "qconf"},
+  on_finish: function(data){
+    data.response=jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
+  }
+};
+
+//instructions(timeline);
+
+practice(timeline, q_conf);
+
+//staircase(timeline, pest, shapes, q_conf);
+
+
+//block with no imagery.
+//block_with_no_imagery(timeline, shapes, q_conf);
+
+//block_with_imagery(timeline, shapes, q_conf);
+
+
+
+
+//-----------------Helper functions-----------------//
+
+//The staircase function pushes everything needed for staircasing
+//to the timeline
+
+function instructions(timeline){
+
+  var inst1 = {
+    type: 'instructions',
+    pages: [
+      'Welcome the experiment. In this experiment, you will be asked to imagine shapes using the squares of a grid.',
+      "For instance, you might be asked to imagine the following L shape superimposed on the grid: ",
+    ],
+    show_clickable_nav: true
+  };
+
+  var grid1 = {
+    type: 'grid',
+    frame_duration: 5000, //whole time
+    bright_block_IDs: [0,3,6,7,8],
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change,
+    animation_duration: 5000, //whole time
+    text_above: "",
+    shape_in_text: [0,3,6,7,8]
+  }
+
+  var grid2 = {
+    type: 'grid',
+    frame_duration: 5000, //whole time
+    bright_block_IDs: [0,1,2,4,7],
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change,
+    animation_duration: 5000, //whole time
+    text_above: "Or this shape:",
+    shape_in_text: [0,1,2,4,7]
+  }
+
+  var grid3 = {
+    type: 'grid',
+    frame_duration: 5000, //whole time
+    bright_block_IDs: [0,1,2,3,6],
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change,
+    animation_duration: 5000, //whole time
+    text_above: "Or this:",
+    shape_in_text: [0,1,2,3,6]
+  }
+
+  var inst2 = {
+    type: 'instructions',
+    pages: [
+      "Try imagining the following shape until you can \"see\" it superimposed on the grid:"
+    ],
+    show_clickable_nav: true
+  };
+
+  //would be nice to let them control this, but would be harder to code
+  var grid4 = {
+    type: 'grid',
+    trial_duration: 10000,
+    frame_duration: 50,
+    bright_block_IDs: [],
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change,
+    text_above: "",
+    shape_in_text: [0,1,2,3,6]
+  }
+
+  var inst3 = {
+    type: 'instructions',
+    pages: [
+      "While you are imagining, some of the squares may grow brighter.",
+      "The squares that change color might either be the ones making up shape which you were asked to imagine, or they might make up a different shape.",
+      "Your task is to press the \",\" key if the some squares grew darker or brighter and the \".\" key if not.",
+      "Please also rate your confidence in your answer. \"1\" means you're sure and \"2\" means you're unsure.",
+      "Each trial will last 5 seconds. Try to imagine the shape for the whole time as best you can.",
+      "You will now begin a series of practice trials to get a better sense of the task. Afterwards, the experiment will begin."
+    ],
+    show_clickable_nav: true
+  };
+
+  timeline.push(inst1, grid1, grid2, grid3, inst2, grid4, inst3);
+
+};
+
+function practice(timeline, q_conf){
+  var num_trials = 2;
+
+  trials = [];
+
+  for (i = 0; i < num_trials; i++) {
+    if (i < num_trials/2){
+      trials.push(shapes[Math.floor(Math.random()*shapes.length)]);
+    } else {
+      trials.push([]);
+    }
+  }
+  trials = trials.sort(() => Math.random() - 0.5);
+  console.log("trials", trials);
+
+  for (i = 0; i < num_trials; i++){
+    var grid = {
+      type: 'grid',
+      frame_duration: 50,
+      bright_block_IDs: function(){
+        bright_block_IDs = trials.shift(); //removes first element from trials
+        console.log("bright_block_IDs ", bright_block_IDs)
+        return bright_block_IDs;
+      },
+      //change: change,
+      starting_brightness: starting_brightness,
+      brightness_change: current_brightness_change
+    }
+
+    var q_change = {
+      type: 'html-keyboard-response',
+      stimulus: [
+        'Was there a change in brightness? <p> (Press , for Yes or  . for No)'
+      ],
+      choices: [",","."],
+      on_finish: function(data){
+        //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
+        jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
+        data.response = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
+        data.correct = data.response == data.correct_response
+        console.log("correct ", data.correct);
+        last_trial_was_correct = data.correct;
+        correct_answer = data.correct_response;
+        console.log("last trial was correct", last_trial_was_correct);
+        //correct_choice: correctresponseCoh()
+        current_brightness_change = pest.staircase(data.correct);
+      }
+    }
+
+    var feedback = {
+      type: 'instructions',
+      pages: function(){
+        return [getText(last_trial_was_correct, correct_answer)]},
+        show_clickable_nav: true
+      };
+
+      timeline.push(grid, q_change, q_conf, feedback);
+    }; //end of for loop
+    
+    var inst = {
+      type: 'instructions',
+      pages: [
+        'Great job! The practice trials are over, and it is time to start the experiment!',
+        'The shapes may get fainter and harder to detect. This is a difficult task, and will require concetration.',
+        'Get ready for the challenge!'
+      ],
+      show_clickable_nav: true
+    };
+
+    timeline.push(inst);
+  }; //end of practice function
+
+function staircase(timeline, pest, shapes, q_conf){
+  var num_trials = 10;
+  //possible shapes or empty
+  var temp = shapes;
+  var empties = [];
+  for (i = 0; i < shapes.length; i++){
+    empties.push([]);
+  };
+  var trials = temp.concat(empties);
+  //shuffles the array
+  trials = trials.sort(() => Math.random() - 0.5);
+  console.log("trials ", trials)
+
+  for (i = 0; i < num_trials; i++){
+
+    var grid = {
+      type: 'grid',
+      frame_duration: 50,
+      bright_block_IDs: function(){
+        bright_block_IDs = trials.shift(); //removes first element from trials
+        console.log("bright_block_IDs ", bright_block_IDs)
+        return bright_block_IDs;
+      },
+      //change: change,
+      starting_brightness: starting_brightness,
+      brightness_change: function(){
+        //want to make it dynamic so staircasing will work
+        return current_brightness_change
+      },
+    };
+
+    var q_change = {
+      type: 'html-keyboard-response',
+      stimulus: [
+        'Was there a change in brightness? <p> (Press , for Yes or  . for No)'
+      ],
+      choices: [",","."],
+      on_finish: function(data){
+        //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
+        jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
+        data.response = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
+        data.correct = data.response == data.correct_response
+        //correct_choice: correctresponseCoh()
+        current_brightness_change = pest.staircase(data.correct);
+      }
+    };
+
+    //Push the trials into the timeline array
+    //timeline.push(hello_trial);
+    timeline.push(grid);
+    timeline.push(q_change);
+    timeline.push(q_conf);
+
+  }; //end for loop
+}; //end function
+
+function block_with_no_imagery(timeline, shapes, q_conf){
+  var num_trials = 16; //best as multiples of 8 for the 8 shapes
+  //double the trials with a shape in them
+  var temp = shapes;
+  //var factor = num_trials/length(shapes);
+  var empties = [];
+  for (i = 0; i < temp.length; i++){
+    empties.push([]);
+  };
+  var trials = temp.concat(empties);
+  //shuffles the array
+  trials = trials.sort(() => Math.random() - 0.5);
+  console.log("trials", trials);
+
+  //throw an error if length of trials is not equal to num_trials
+  try {
+    if(trials.length != num_trials){
+      throw "mismatch between num_trials and length of trials"
+    }
+  }
+  catch(err) {
+    message.innerHTML = "Input " + err;
+  }
+
+  for (i = 0; i < num_trials; i++){
+
+    var grid = {
+      type: 'grid',
+      frame_duration: 50,
+      bright_block_IDs: function(){
+        bright_block_IDs = trials.shift(); //removes first element from trials
+        console.log("bright_block_IDs ", bright_block_IDs)
+        return bright_block_IDs;
+      },
+      //change: change,
+      starting_brightness: starting_brightness,
+      brightness_change: function(){
+        //want to make it dynamic so staircasing will work
+        return current_brightness_change
+      },
+    };
+
+    var q_change = {
+      type: 'html-keyboard-response',
+      stimulus: [
+        'Was there a change in brightness? <p> (Press , for Yes or  . for No)'
+      ],
+      choices: [",","."],
+      on_finish: function(data){
+        //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
+        jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
+        data.response = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
+        data.correct = data.response == data.correct_response
+        console.log("correct ", data.correct)
+        //correct_choice: correctresponseCoh()
+        //current_brightness_change = pest.staircase(data.correct);
+      }
+    };
+
+    //Push the trials into the timeline array
+    timeline.push(grid);
+    timeline.push(q_change);
+    timeline.push(q_conf);
+
+  } //end for loop
+
+} //end block_with_no_imagery function
+
+function block_with_imagery(timeline, shapes, q_conf){
+
+  var inst = {
+    type: 'instructions',
+    pages: [
+      'Now you will be asked to imagine shapes before detecting whether or not a shape has appeared',
+    ],
+    show_clickable_nav: true
+  };
+
+  timeline.push(inst);
+
+  var num_trials = 32; //best as multiples of 8 for the 8 patterns
+  var num_shapes_to_imagine = 8;
+  var trials_per_imagined_shape = 4;
+
+  var trials = []; //holds the shapes to be displayed
+  var imagine = []; //holds the shapes to imagine
+
+  //build instructions and stim
+  for (s = 0; s < num_shapes_to_imagine; s++){
+    for (t = 0; t < trials_per_imagined_shape; t++){
+      imagine.push(shapes[s]);
+      //for half the trials, nothing will be displayed
+      if (t < trials_per_imagined_shape/2){
+        trials.push([]);
+        //for a quarter of the trials, some other shape will be displayed
+      } else if (t < trials_per_imagined_shape*3/4) {
+        //sample randomly from shapes, with replacement
+        var sampled = shapes[Math.floor(Math.random()*shapes.length)];
+        //if it sampled the same shape as is beging imagined, sample again
+        while (sampled == shapes[s]){
+          sampled = shapes[Math.floor(Math.random()*shapes.length)];
         }
+        trials.push(sampled);
+        //else, sample the same shape as imagined
+      } else {
+        trials.push(shapes[s]);
+      } //end of else
+    } //end of inner for loop
+  } //end of outer for loop
 
-        ///////////////////////////////////////////////////////////////
-        //-----------------Your code below this line-----------------//
+  //throw an error if length of trials is not equal to num_trials
+  try {
+    if(trials.length != num_trials || imagine.length != num_trials){
+      throw "mismatch between num_trials and length of trials"
+    }
+  }
+  catch(err) {
+    message.innerHTML = "Input " + err;
+  }
 
-        var starting_brightness = 170
-        //at most, squares can become white
-        var maximum_brightness_change = 255 - starting_brightness
-        var starting_brightness_change = 25
-        var current_brightness_change = starting_brightness_change; //keeps track of current value in staircase
+  //shuffles both the arrays
+  shuffle_both(imagine, trials);
+  console.log("imagine ", imagine);
+  console.log("trials ", trials);
 
-        //Variables for 3 Down / 1 Up
-        var down_threshold = 3; // 3 Down
-        var up_threshold = 1; // 1 Up
-        var upper_brightness_change_limit = maximum_brightness_change;
-        var lower_brightness_change_limit = 0.0;
-        var correct_streak_counter = 0;
-        var incorrect_streak_counter = 0;
+  for (i = 0; i < num_trials; i++){
 
-        //Variables for PEST
-        var current_step_size = 20; //Global variable to hold the current step size
-        var minimum_step_size = 1; //Smallest step size
-        var maximum_step_size = 20; //Largest step size
+    var grid = {
+      type: 'grid',
+      frame_duration: 50,
+      bright_block_IDs: function(){
+        //why can't I do this statically? -- ans: because I need access to these values?
+        bright_block_IDs = trials.shift(); //removes first element from trials
+        return bright_block_IDs;
+      },
+      //change: change,
+      starting_brightness: starting_brightness,
+      brightness_change: function(){
+        //want to make it dynamic so staircasing will work
+        return current_brightness_change
+      },
+      text_above: "Imagine the shape: ",
+      shape_in_text: function(){
+        shape_in_text = imagine.shift(); //removes first element from imagine
+        return shape_in_text;
+      }
+    };
 
-        //Create the parameter object for PEST
-        var pestParameters = {
-          starting_intensity: starting_brightness_change,
-          down_threshold: down_threshold,
-          up_threshold: up_threshold,
-          upper_intensity_limit: upper_brightness_change_limit,
-          lower_intensity_limit: lower_brightness_change_limit,
-          starting_step_size: current_step_size,
-          min_step_size: minimum_step_size,
-          max_step_size: maximum_step_size
-        };
+    var q_change = {
+      type: 'html-keyboard-response',
+      stimulus: [
+        'Was there a change in brightness? <p> (Press , for Yes or  . for No)'
+      ],
+      choices: [",","."],
+      on_finish: function(data){
+        //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
+        jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
+        data.response = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
+        data.correct = data.response == data.correct_response
+        console.log("correct ", data.correct)
+        //correct_choice: correctresponseCoh()
+        //current_brightness_change = pest.staircase(data.correct);
+      }
+    };
 
-        var pest = new pest(pestParameters);
+    //Push the trials into the timeline array
+    timeline.push(grid);
+    timeline.push(q_change);
+    timeline.push(q_conf);
+  } //end for loop
 
-        //Timeline array to be fed into the jsPsych.init function
-        var timeline = [];
+} //end of function
 
-        //8 shapes
-        var shapes = [[0,1,2,3,6], [0,1,2,5,8], [0,3,6,7,8], [2,5,8,6,7],
-        [0,1,2,4,7], [1,4,6,7,8], [0,3,6,4,5], [3,4,5,2,8]];
+//shuffles two arrays in the same way
+function shuffle_both(array, array2) {
+  var counter = array.length, temp, temp2, index;
 
-        var q_conf = {
-            type: 'html-keyboard-response',
-            stimulus: [
-              'How confident are you? <p> (Press 1 for confident and 2 for unsure)'
-              ],
-              choices: ["1", "2"],
-              data: {descriptive_trial_type: "qconf"},
-            on_finish: function(data){
-              data.response=jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
-              }
-              };
+  // While there are elements in the array
+  while (counter > 0) {
+    // Pick a random index
+    index = Math.floor(Math.random() * counter);
 
-        staircase(timeline, pest, shapes, q_conf);
+    // Decrease counter by 1
+    counter--;
 
+    // And swap the last element with it
+    temp = array[counter];
+    temp2 = array2[counter];
 
-        //block with no imagery.
-        //block_with_no_imagery(timeline, shapes, q_conf);
+    array[counter] = array[index];
+    array2[counter] = array2[index];
 
-        //block_with_imagery(timeline, shapes, q_conf);
+    array[index] = temp;
+    array2[index] = temp2;
+  }
+}
 
+//This function gets the text for feedback
+function getText(correct, correct_answer){
+  if (correct_answer.toString() == ","){
+    ans = "Yes";
+  } else {
+    ans = "No";
+  };
 
+  var text = ans + ' was the correct answer'
+  if (correct==true){
+    text = '<p style="color:lime;"> Great job! ' + text + '</p>';
+  } else	{
+    text = '<p style="color:red;"> Incorrect. ' + text + '</p>';
+  };
+  return text;
+};
 
+function correct_response_fun(){
+  //or could have to do with blocks
+  if (bright_block_IDs.length == 0){
+    return "." //no
+  } else {
+    return "," //yes
+  }
+};
 
-        //-----------------Helper functions-----------------//
-
-        //The staircase function pushes everything needed for staircasing
-        //to the timeline
-        function staircase(timeline, pest, shapes, q_conf){
-          var num_trials = 10;
-          //possible shapes or empty
-          var temp = shapes;
-          var empties = [];
-          for (i = 0; i < shapes.length; i++){
-            empties.push([]);
-          };
-          var trials = temp.concat(empties);
-          //shuffles the array
-          trials = trials.sort(() => Math.random() - 0.5);
-          console.log("trials ", trials)
-
-          for (i = 0; i < num_trials; i++){
-
-            var grid = {
-                type: 'grid',
-                frame_duration: 50,
-                bright_block_IDs: function(){
-                  bright_block_IDs = trials.shift(); //removes first element from trials
-                  console.log("bright_block_IDs ", bright_block_IDs)
-                  return bright_block_IDs;
-                },
-                //change: change,
-                starting_brightness: starting_brightness,
-                brightness_change: function(){
-                  //want to make it dynamic so staircasing will work
-                  return current_brightness_change
-                },
-            };
-
-            var q_change = {
-              type: 'html-keyboard-response',
-              stimulus: [
-                'Was there a change in brightness? <p> (Press , for Yes or  . for No)'
-              ],
-              choices: [",","."],
-              on_finish: function(data){
-                //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
-                jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
-                data.response = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
-                data.correct = data.response == data.correct_response
-                //correct_choice: correctresponseCoh()
-                current_brightness_change = pest.staircase(data.correct);
-              }
-            };
-
-            //Push the trials into the timeline array
-            //timeline.push(hello_trial);
-            timeline.push(grid);
-            timeline.push(q_change);
-            timeline.push(q_conf);
-
-          }; //end for loop
-        }; //end function
+//-----------------Your code above this line-----------------//
+///////////////////////////////////////////////////////////////
 
 
-        function correct_response_fun(){
-          //or could have to do with blocks
-          if (bright_block_IDs.length == 0){
-            return "." //no
-          } else {
-            return "," //yes
-          }
-        };
+//---------Run the experiment---------
 
-        function block_with_no_imagery(timeline, shapes, q_conf){
-          var num_trials = 16; //best as multiples of 8 for the 8 shapes
-          //double the trials with a shape in them
-          var temp = shapes;
-          //var factor = num_trials/length(shapes);
-          var empties = [];
-          for (i = 0; i < temp.length; i++){
-            empties.push([]);
-          };
-          var trials = temp.concat(empties);
-          //shuffles the array
-          trials = trials.sort(() => Math.random() - 0.5);
-          console.log("trials", trials);
-
-          //throw an error if length of trials is not equal to num_trials
-          try {
-            if(trials.length != num_trials){
-              throw "mismatch between num_trials and length of trials"
-            }
-          }
-          catch(err) {
-              message.innerHTML = "Input " + err;
-          }
-
-          for (i = 0; i < num_trials; i++){
-
-            var grid = {
-                type: 'grid',
-                frame_duration: 50,
-                bright_block_IDs: function(){
-                  bright_block_IDs = trials.shift(); //removes first element from trials
-                  console.log("bright_block_IDs ", bright_block_IDs)
-                  return bright_block_IDs;
-                },
-                //change: change,
-                starting_brightness: starting_brightness,
-                brightness_change: function(){
-                  //want to make it dynamic so staircasing will work
-                  return current_brightness_change
-                },
-            };
-
-            var q_change = {
-              type: 'html-keyboard-response',
-              stimulus: [
-                'Was there a change in brightness? <p> (Press , for Yes or  . for No)'
-              ],
-              choices: [",","."],
-              on_finish: function(data){
-                //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
-                jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
-                data.response = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
-                data.correct = data.response == data.correct_response
-                console.log("correct ", data.correct)
-                //correct_choice: correctresponseCoh()
-                //current_brightness_change = pest.staircase(data.correct);
-              }
-            };
-
-            //Push the trials into the timeline array
-            timeline.push(grid);
-            timeline.push(q_change);
-            timeline.push(q_conf);
-
-          } //end for loop
-
-        } //end block_with_no_imagery function
-
-        function block_with_imagery(timeline, shapes, q_conf){
-          var num_trials = 32; //best as multiples of 8 for the 8 patterns
-          var num_shapes_to_imagine = 8;
-          var trials_per_imagined_shape = 4;
-
-          var trials = []; //holds the shapes to be displayed
-          var imagine = []; //holds the shapes to imagine
-
-          //build instructions and stim
-          for (s = 0; s < num_shapes_to_imagine; s++){
-            for (t = 0; t < trials_per_imagined_shape; t++){
-              imagine.push(shapes[s]);
-              //for half the trials, nothing will be displayed
-              if (t < trials_per_imagined_shape/2){
-                trials.push([]);
-              //for a quarter of the trials, some other shape will be displayed
-              } else if (t < trials_per_imagined_shape*3/4) {
-                //sample randomly from shapes, with replacement
-                var sampled = shapes[Math.floor(Math.random()*shapes.length)];
-                //if it sampled the same shape as is beging imagined, sample again
-                while (sampled == shapes[s]){
-                  sampled = shapes[Math.floor(Math.random()*shapes.length)];
-                }
-                trials.push(sampled);
-                //else, sample the same shape as imagined
-              } else {
-                trials.push(shapes[s]);
-              } //end of else
-            } //end of inner for loop
-          } //end of outer for loop
-
-          //throw an error if length of trials is not equal to num_trials
-          try {
-            if(trials.length != num_trials || imagine.length != num_trials){
-              throw "mismatch between num_trials and length of trials"
-            }
-          }
-          catch(err) {
-              message.innerHTML = "Input " + err;
-          }
-
-          //shuffles both the arrays
-          shuffle_both(imagine, trials);
-          console.log("imagine ", imagine);
-          console.log("trials ", trials);
-
-          for (i = 0; i < num_trials; i++){
-
-            var grid = {
-              type: 'grid',
-              frame_duration: 50,
-              bright_block_IDs: function(){
-                //why can't I do this statically? -- ans: because I need access to these values?
-                bright_block_IDs = trials.shift(); //removes first element from trials
-                return bright_block_IDs;
-              },
-              //change: change,
-              starting_brightness: starting_brightness,
-              brightness_change: function(){
-                //want to make it dynamic so staircasing will work
-                return current_brightness_change
-              },
-              text_above: "Imagine the shape: ",
-              shape_in_text: function(){
-                shape_in_text = imagine.shift(); //removes first element from imagine
-                return shape_in_text;
-              }
-            };
-
-            var q_change = {
-              type: 'html-keyboard-response',
-              stimulus: [
-                'Was there a change in brightness? <p> (Press , for Yes or  . for No)'
-              ],
-              choices: [",","."],
-              on_finish: function(data){
-                //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
-                jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
-                data.response = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
-                data.correct = data.response == data.correct_response
-                console.log("correct ", data.correct)
-                //correct_choice: correctresponseCoh()
-                //current_brightness_change = pest.staircase(data.correct);
-              }
-            };
-
-            //Push the trials into the timeline array
-            timeline.push(grid);
-            timeline.push(q_change);
-            timeline.push(q_conf);
-          } //end for loop
-
-        } //end of function
-
-        //shuffles two arrays in the same way
-        function shuffle_both(array, array2) {
-          var counter = array.length, temp, temp2, index;
-
-          // While there are elements in the array
-          while (counter > 0) {
-            // Pick a random index
-            index = Math.floor(Math.random() * counter);
-
-            // Decrease counter by 1
-            counter--;
-
-            // And swap the last element with it
-            temp = array[counter];
-            temp2 = array2[counter];
-
-            array[counter] = array[index];
-            array2[counter] = array2[index];
-
-            array[index] = temp;
-            array2[index] = temp2;
-          }
+//Initiate the experiment
+jsPsych.init({
+  timeline: timeline,
+  on_finish: function(){ //Execute this when the experiment finishes
+    if(savingLocally){
+      jsPsych.data.get().localSave('csv','testSave.csv'); //Save the data locally in a .csv file
+    }
+    if(displayData){
+      jsPsych.data.displayData(); //Display the data onto the browser screen
+    }
+    if(psiTurkIsOn){
+      psiturk.saveData({
+        success: function(){
+          psiturk.completeHIT(); //Complete the HIT
         }
+      });
+    }
+  },
+  on_trial_finish: function(){ //Execute this after every trial
+    if (psiTurkIsOn){
+      save_data(tableName, [jsPsych.data.get().last(1).values()[0]]);
+    }
+  }
+});
 
 
-        //-----------------Your code above this line-----------------//
-        ///////////////////////////////////////////////////////////////
+//------psiTurk Functions Begin------
 
+//A function to save the data to the SQL table on the psiturk server.  This gets called at the end of the file.
+function save_data(data_table,data){
 
-        //---------Run the experiment---------
+  //Retrieve data from psiTurk and add to jsPsych data
+  jsPsych.data.addProperties(
+    {
+      workerId: psiturk.taskdata.get('workerId'),
+      assignmentId: psiturk.taskdata.get('assignmentId'),
+      hitId: psiturk.taskdata.get('hitId')
+    }
+  );
 
-        //Initiate the experiment
-        jsPsych.init({
-          timeline: timeline,
-          on_finish: function(){ //Execute this when the experiment finishes
-            if(savingLocally){
-              jsPsych.data.get().localSave('csv','testSave.csv'); //Save the data locally in a .csv file
-            }
-            if(displayData){
-              jsPsych.data.displayData(); //Display the data onto the browser screen
-            }
-            if(psiTurkIsOn){
-              psiturk.saveData({
-                success: function(){
-                  psiturk.completeHIT(); //Complete the HIT
-                }
-              });
-            }
-          },
-          on_trial_finish: function(){ //Execute this after every trial
-            if (psiTurkIsOn){
-              save_data(tableName, [jsPsych.data.get().last(1).values()[0]]);
-            }
-          }
-        });
+  //Use AJAX to post the data onto the psiturk server
+  $.ajax({
+    type:'post',
+    cache: false,
+    url: 'https://psiturk.psych.ucla.edu/~' + username + '/' + folderName + '/templates/savedata.php',
+    data: {
+      table: data_table,
+      json: JSON.stringify(data),
+    },
+    success: function(output) { console.log(output); } // write the result to javascript console
+  });
+}
 
-
-        //------psiTurk Functions Begin------
-
-        //A function to save the data to the SQL table on the psiturk server.  This gets called at the end of the file.
-        function save_data(data_table,data){
-
-          //Retrieve data from psiTurk and add to jsPsych data
-          jsPsych.data.addProperties(
-            {
-              workerId: psiturk.taskdata.get('workerId'),
-              assignmentId: psiturk.taskdata.get('assignmentId'),
-              hitId: psiturk.taskdata.get('hitId')
-            }
-          );
-
-          //Use AJAX to post the data onto the psiturk server
-          $.ajax({
-            type:'post',
-            cache: false,
-            url: 'https://psiturk.psych.ucla.edu/~' + username + '/' + folderName + '/templates/savedata.php',
-            data: {
-              table: data_table,
-              json: JSON.stringify(data),
-            },
-            success: function(output) { console.log(output); } // write the result to javascript console
-          });
-        }
-
-        //------psiTurk Functions End------
+//------psiTurk Functions End------
 
 
 
-    </script>
+</script>
 </html>
