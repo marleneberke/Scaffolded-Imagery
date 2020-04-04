@@ -17,8 +17,8 @@
 
   <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>
   <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-instructions.js"></script>
-  <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-RDK.js"></script>
   <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-grid.js"></script>
+  <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-survey-text.js"></script>
 
 
   <!--\\                                 //-->
@@ -46,22 +46,10 @@
 </body>
 <script>
 
-//Data switches
-var psiTurkIsOn = 0;   // 0: Test locally.  1: Test/Run on psiTurk
-var savingLocally = 1; // 0: Nothing.       1: Download CSV file
-var displayData = 1;   // 0: Nothing.       1: Display data on browser
-var username = '';     // Username for psiturk server
-var tableName = '';    // MySQL Table Name
-var folderName = '';   // Folder containing the experiment
-
-
-// Load psiturk
-if (psiTurkIsOn){
-  var psiturk = new PsiTurk(uniqueId, adServerLoc, mode);
-}
-
-///////////////////////////////////////////////////////////////
-//-----------------Your code below this line-----------------//
+//later, make random
+//participant_ID = "Tester";
+var participant_ID = randomStr(10, '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+jsPsych.data.addProperties({participant_ID: participant_ID}); //add the subject to everything
 
 var starting_brightness = 170
 //at most, squares can become white
@@ -115,20 +103,28 @@ var q_conf = {
   }
 };
 
-//instructions(timeline);
+instructions(timeline);
 
 practice(timeline, q_conf);
 
-//staircase(timeline, pest, shapes, q_conf);
+staircase(timeline, pest, shapes, q_conf);
 
+//later have to randomize the order of these two
+if (Math.random()<0.5){
+  block_with_no_imagery(timeline, shapes, q_conf);
+  block_with_imagery(timeline, shapes, q_conf);
+} else {
+  block_with_imagery(timeline, shapes, q_conf);
+  block_with_no_imagery(timeline, shapes, q_conf);
+}
 
-//block with no imagery.
-//block_with_no_imagery(timeline, shapes, q_conf);
+staircase(timeline, pest, shapes, q_conf);
 
-//block_with_imagery(timeline, shapes, q_conf);
+VVIQ(timeline);
 
+demographics(timeline);
 
-
+debrief(timeline);
 
 //-----------------Helper functions-----------------//
 
@@ -136,6 +132,14 @@ practice(timeline, q_conf);
 //to the timeline
 
 function instructions(timeline){
+
+  var consent = {
+    type: 'html-keyboard-response',
+    choices: ['y'],
+    stimulus: "<h5>In order to run this study, we need to include the standard consent form below.</h5><h1>Adult Study Pool Informed Consent</h1><div style='width: 100%; text-align: center'><div style='display: inline-block; margin: 0 auto; padding: 10px 200px 10px 200px; text-align: left'><h5>STUDY TITLE</h5><p>Perceiving Objects and Events</p><h5>RESEARCH STUDY SUMMARY, RISKS, AND BENEFITS</h5><p>Thank you for volunteering to participate in this research study. The purpose of this study is to better understand how we see and how we think. Study activities will include examining simple displays and then responding by answering questions, pressing some keys, or using a computer mouse. Because these are activities that many people already experience hundreds or thousands of times every day, there are no risks involved in this study. The study may have no benefits to you, but it may help the scientific community come to better understand how the human mind works. Taking part in this study is your choice. You can choose to take part, or you can choose not to take part in this study. You can also change your mind at any time, with no penalty.</p><h5>DURATION</h5><p>If you agree to take part, the study will last approximately <strong>30 minutes</strong>.</p><h5>COSTS AND COMPENSATION</h5><p>There are no costs associated with participation in this study. You will receive <strong>0.5 credit</strong> for participating.</p><h5>CONFIDENTIALITY</h5><p>No personally identifying information will be collected, so your participation will be anonymous. Your data will be pooled with those from other participants, and may be included in scientific publications and uploaded to public data repositories.</p><h5>LEARNING MORE</h5><p>If you have questions about this study, you may contact your experimenter Joan Ongchoco at joan.ongchoco@yale.edu. If you have questions about your rights as a research participant, or you have complaints about this research, you can contact the Yale Institutional Review Boards at 203-785-4688 or hrpp@yale.edu.</p><h5>INFORMED CONSENT</h5><p>Your participation indicates that you have read and understood this consent form and the information presented and that you agree to be in this study.</p></div></div>",
+    prompt: "<h3>PRESS THE Y KEY TO CONSENT</h3><p></p><p></p>",
+    data: {descriptive_trial_type: "qconf"}
+  };
 
   var inst1 = {
     type: 'instructions',
@@ -212,12 +216,12 @@ function instructions(timeline){
     show_clickable_nav: true
   };
 
-  timeline.push(inst1, grid1, grid2, grid3, inst2, grid4, inst3);
+  timeline.push(consent, inst1, grid1, grid2, grid3, inst2, grid4, inst3);
 
 };
 
 function practice(timeline, q_conf){
-  var num_trials = 2;
+  var num_trials = 6;
 
   trials = [];
 
@@ -242,7 +246,8 @@ function practice(timeline, q_conf){
       },
       //change: change,
       starting_brightness: starting_brightness,
-      brightness_change: current_brightness_change
+      brightness_change: current_brightness_change,
+      data: {descriptive_trial_type: "grid"}
     }
 
     var q_change = {
@@ -251,6 +256,7 @@ function practice(timeline, q_conf){
         'Was there a change in brightness? <p> (Press , for Yes or  . for No)'
       ],
       choices: [",","."],
+      data: {descriptive_trial_type: "q_change"},
       on_finish: function(data){
         //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
         jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
@@ -274,7 +280,7 @@ function practice(timeline, q_conf){
 
       timeline.push(grid, q_change, q_conf, feedback);
     }; //end of for loop
-    
+
     var inst = {
       type: 'instructions',
       pages: [
@@ -306,6 +312,7 @@ function staircase(timeline, pest, shapes, q_conf){
     var grid = {
       type: 'grid',
       frame_duration: 50,
+      data: {descriptive_trial_type: "grid"},
       bright_block_IDs: function(){
         bright_block_IDs = trials.shift(); //removes first element from trials
         console.log("bright_block_IDs ", bright_block_IDs)
@@ -325,6 +332,7 @@ function staircase(timeline, pest, shapes, q_conf){
         'Was there a change in brightness? <p> (Press , for Yes or  . for No)'
       ],
       choices: [",","."],
+      data: {descriptive_trial_type: "q_change"},
       on_finish: function(data){
         //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
         jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
@@ -368,11 +376,22 @@ function block_with_no_imagery(timeline, shapes, q_conf){
     message.innerHTML = "Input " + err;
   }
 
+  var inst = {
+    type: 'instructions',
+    pages: [
+      'In this section, you do not need to imagine anything.',
+    ],
+    show_clickable_nav: true
+  };
+
+  timeline.push(inst);
+
   for (i = 0; i < num_trials; i++){
 
     var grid = {
       type: 'grid',
       frame_duration: 50,
+      data: {descriptive_trial_type: "grid"},
       bright_block_IDs: function(){
         bright_block_IDs = trials.shift(); //removes first element from trials
         console.log("bright_block_IDs ", bright_block_IDs)
@@ -392,6 +411,7 @@ function block_with_no_imagery(timeline, shapes, q_conf){
         'Was there a change in brightness? <p> (Press , for Yes or  . for No)'
       ],
       choices: [",","."],
+      data: {descriptive_trial_type: "q_change"},
       on_finish: function(data){
         //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
         jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
@@ -417,7 +437,7 @@ function block_with_imagery(timeline, shapes, q_conf){
   var inst = {
     type: 'instructions',
     pages: [
-      'Now you will be asked to imagine shapes before detecting whether or not a shape has appeared',
+      'In this section, you will be asked to imagine shapes before detecting whether or not a shape has appeared.',
     ],
     show_clickable_nav: true
   };
@@ -489,7 +509,8 @@ function block_with_imagery(timeline, shapes, q_conf){
       shape_in_text: function(){
         shape_in_text = imagine.shift(); //removes first element from imagine
         return shape_in_text;
-      }
+      },
+      data: {descriptive_trial_type: "grid"}
     };
 
     var q_change = {
@@ -498,6 +519,7 @@ function block_with_imagery(timeline, shapes, q_conf){
         'Was there a change in brightness? <p> (Press , for Yes or  . for No)'
       ],
       choices: [",","."],
+      data: {descriptive_trial_type: "q_change"},
       on_finish: function(data){
         //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
         jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
@@ -517,7 +539,111 @@ function block_with_imagery(timeline, shapes, q_conf){
 
 } //end of function
 
+function VVIQ(timeline){
+  var vviq_intro = {
+    type: 'html-keyboard-response',
+    choices: ['space'],
+    stimulus: "<div style='width: 75%; margin: 0 auto; min-width: 1000px'><p style='text-align: left'>Now, we will move on to the next section.<br><br>For each item on this questionnaire, try to form a visual image, and consider your experience carefully. For any image that you do experience, rate how vivid it is using the five-point scale described below. If you do not have a visual image, rate vividness as '1'. Only use '5' for images that are truly as lively and vivid as real seeing.<br><br>5 - Perfectly clear and vivid as real seeing<br>4 - Clear and reasonably vivid<br>3 - Moderately clear and lively<br>2 - Vague and dim<br>1 - No image at all, you only 'know' that you are thinking of the object<br><br><strong>Please note that there are no right or wrong answers to the questions, and that it is not necessarily desirable to experience imagery or, if you do, to have more vivid imagery.</strong><br><br></div>",
+    prompt: "Press the spacebar to begin.",
+    data: {descriptive_trial_type: 'vviq_intro'}
+  };
+
+  var vviq_prompt = function(eye_condition, vviq_heading, vviq_item, vviq_id){
+    var trial_prompt = {
+      type: 'html-keyboard-response',
+      choices: ['1', '2', '3', '4', '5'],
+      stimulus: "<div style='width: 75%; margin: 0 auto; min-width: 1000px;'><p style='text-align: left'>Now imagine with your eyes <strong>"+eye_condition+".</strong> <br><br> <strong>"+vviq_heading+"</strong> <br><br> Consider carefully the picture that comes before your mind's eye.<br>How vividly can you imagine...<br><br> <strong>"+vviq_item+"</strong><br><br> 5 - Perfectly clear and vivid as real seeing<br>4 - Clear and reasonably vivid<br>3 - Moderately clear and lively<br>2 - Vague and dim<br>1 - No image at all, you only 'know' that you are thinking of the object</p></div>",
+      data: {descriptive_trial_type: 'vviq', vviq_id: vviq_id},
+      on_finish: function(data){
+        data.vviq_response = parseInt(String.fromCharCode(data.key_press));
+        console.log(data.vviq_response);
+      }
+    };
+    return trial_prompt;
+  };
+
+  timeline.push(vviq_intro);
+  var vviq_heading_sequence = {1: "Think of some relative or friend whom you frequently see (but who is not with you at present).", 2: "Visualise a rising sun.", 3: "Think of the front of a shop which you often go to.", 4: "Finally think of a country scene which involves trees, mountains and a lake."};;
+  var vviq_item_sequence = {1: "The exact contour of face, head, shoulders and body",
+  2: "Characteristic poses of head, attitudes of body etc.",
+  3: "The precise carriage, length of step etc., in walking",
+  4: "The different colours worn in some familiar clothes",
+  5: "The sun rising above the horizon into a hazy sky",
+  6: "The sky clears and surrounds the sun with blueness",
+  7: "Clouds. A storm blows up with flashes of lightning",
+  8: "A rainbow appears",
+  9: "The overall appearance of the shop from the opposite side of the road",
+  10: "A window display including colours, shapes and details of individual items for sale",
+  11: "You are near the entrance. The colour, shape and details of the door",
+  12: "You enter the shop and go to the counter. The counter assistant serves you",
+  13: "The contours of the landscape",
+  14: "The colour and shape of the trees",
+  15: "The colour and shape of the lake",
+  16: "A strong wind blows on the trees and on the lake causing waves in the water"};
+
+  var num_vviq_headings = 4;
+  var num_vviq_items = 4;
+
+  var item_count = 1;
+  for (p = 1; p < num_vviq_headings+1; p++){
+    for (i = 0; i < num_vviq_items; i++){
+      timeline.push(vviq_prompt('OPEN', vviq_heading_sequence[p], vviq_item_sequence[item_count], item_count));
+      item_count++;
+    };
+  };
+
+  var item_count = 16;
+  for (p = 1; p < num_vviq_headings+1; p++){
+    for (i = 0; i < num_vviq_items; i++){
+      timeline.push(vviq_prompt('CLOSED', vviq_heading_sequence[p], vviq_item_sequence[item_count-15], item_count));
+      item_count++;
+    };
+  };
+}; //end of VVIQ function
+
+function demographics(timeline){
+
+  var survey = {
+    type: 'survey-text',
+    questions: [
+      {prompt: "What is your participant ID number? We need this to grant you credit"}
+    ],
+  };
+
+  // var demographics = [
+  //   {
+  //     html: '<p>Finally, we just have a couple questions for you!<br>Please note that you must answer <strong>ALL</strong> the questions before pressing the CONTINUE button below.  Otherwise, the page will refresh and clear any answers you may have already typed.' +
+  //     "<div style='width: 50%; text-align: left; margin: 0 auto'>" +
+  //     '<p>Age: <br><input name="age" type="number" style="width: 20%; border-radius: 4px; padding: 10px 10px; margin: 8px 0; border: 1px solid #ccc; font-size: 15px"/>' +
+  //     '<p>Please select your gender:<br><input type="radio" id="male" name="gender" value="male"><label for="male">Male</label><br><input type="radio" id="female" name="gender" value="female"><label for="female">Female</label><br><input type="radio" id="other" name="gender" value="other"><label for="other">Other</label><br>' +
+  //     '<p>How well do you think you did, out of 100% (with 1 being terrible, and 100 being perfect)? <br><input name="1_performance" type="number" max="100" style="width: 20%; border-radius: 4px; padding: 10px 10px; margin: 8px 0; border: 1px solid #ccc; font-size: 15px">' +
+  //     '<p>In 1-2 sentences, did you notice yourself using any particular strategies throughout the task? <br><input name="2_strategies" type="text" size="50" style="width: 100%; border-radius: 4px; padding: 10px 10px; margin: 8px 0; border: 1px solid #ccc; font-size: 15px"/>' +
+  //     '<p>In 1-2 sentences, what do you think this experiment was testing? <br><input name="3_experiment" type="text" size="50" style="width: 100%; border-radius: 4px; padding: 10px 10px; margin: 8px 0; border: 1px solid #ccc; font-size: 15px"/>' +
+  //     '<p>Sometimes, the disc grew larger.  How do you think this affected your performance? <br><input name="4_manipulation" type="text" size="50" style="width: 100%; border-radius: 4px; padding: 10px 10px; margin: 8px 0; border: 1px solid #ccc; font-size: 15px"/>' +
+  //     '<p>Anything else to share? <br><input name="5_final" type="text" size="50" style="width: 100%; border-radius: 4px; padding: 10px 10px; margin: 8px 0; border: 1px solid #ccc; font-size: 15px"/></p>' +
+  //     '<p>We know it is generally difficult to stay focused in these online experiments, especially when they take this long.  On a scale of 1-100 (with 1 being very distracted, and 100 being very focused), how well did you pay attention to the experiment?  (This will not affect whether you receive credit or compensation.  It will really just be helpful for us to know whether you took this experiment seriously). <br><input name="6_attention" type="number" max="100" style="width: 20%; border-radius: 4px; padding: 10px 10px; margin: 8px 0; border: 1px solid #ccc; font-size: 15px"></p>' +
+  //     '<p>Participant ID Code: <br><input name="id_code" type="number" style="width: 20%; border-radius: 4px; padding: 10px 10px; margin: 8px 0; border: 1px solid #ccc; font-size: 15px"/>' +
+  //     "</div>",
+  //     data: {descriptive_trial_type: 'demographics'}}
+  //   ];
+
+    timeline.push(survey);
+} //end of demographics function
+
+function debrief(timeline){
+
+  var debrief = {
+    type: 'html-keyboard-response',
+    choices: ['y'],
+    stimulus: "<h1>Debrief</h1><div style='width: 100%; text-align: center'><div style='display: inline-block; margin: 10; padding: 10px 200px 10px 200px; text-align: left'><h5>STUDY TITLE</h5><p>Imagine Shapes</p><p>Thank you for participating in our experiment today. Some people construct vivid pictures in their mind, while for others images come in spontaneous flashes, and others people report that they do not picture things in their mind. There are large individual differences in this kind of mental imagery. In some theories, visualization is thought to be perception taken offline, and there is work suggesting that mental imagery can interfere with perception (Segal & Fusella 1970), and even that people may confuse perception for mental imagery (Segal & Nathan, 1964). In this experiment you just participated in, we were investigating whether you might mistake perception for mental imagery. Perhaps you might mistake a hard- to-see shape presented with the shape that you are imagining in your mind, or vice versa. Because we are looking into how people naturally imagine and perceive shapes, please do not discuss the details of the experiment with other potential volunteers. If you have questions about the procedure or scientific aims of the work though, please do not hesitate to reach me at marlene.berke@yale.edu. If you have any questions about your rights as a research participant or concerns about the conduct of this study, you may contact the Yale University Human Subjects Committee, Box 208304, New Haven, CT 06520-8304, 203-785-4688, human.subjects@yale.edu. For further reading Segal, S. J., & Fusella, V. (1970). Influence of imaged pictures and sounds on detection of visual and auditory signals. Journal of Experimental Psychology, 83(3, Pt.1), 458-464. https://doi.org/10.1037/h0028840 Segal, S. J., & Nathan, S. (1964). The Perky Effect: Incorporation of an External Stimulus into an Imagery Experience under Placebo and Control Conditions. Perceptual and Motor Skills, 18(2), 385 to 395. https://doi.org/10.2466/pms.1964.18.2.385 </p></div></div>",
+    prompt: "<h3>PRESS THE Y KEY TO CONSENT</h3><p></p><p></p>",
+    data: {descriptive_trial_type: "debrief"}
+  };
+
+  timeline.push(debrief);
+}
 //shuffles two arrays in the same way
+
 function shuffle_both(array, array2) {
   var counter = array.length, temp, temp2, index;
 
@@ -567,67 +693,43 @@ function correct_response_fun(){
   }
 };
 
+//Generates  a random string of length len out of the items in arr
+function randomStr(len, arr) {
+  var ans = '';
+  for (var i = len; i > 0; i--) {
+    ans +=
+    arr[Math.floor(Math.random() * arr.length)];
+  }
+  return ans;
+}
+
 //-----------------Your code above this line-----------------//
 ///////////////////////////////////////////////////////////////
 
 
 //---------Run the experiment---------
 
-//Initiate the experiment
-jsPsych.init({
-  timeline: timeline,
-  on_finish: function(){ //Execute this when the experiment finishes
-    if(savingLocally){
-      jsPsych.data.get().localSave('csv','testSave.csv'); //Save the data locally in a .csv file
+//A function to save the data to the server.
+function saveData() {
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'write_data.php'); // change 'write_data.php' to point to php script.
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.onload = function() {
+    if(xhr.status == 200){
+      console.log("xhr.responseText ", xhr.responseText);
+      console.log("JSON.parse(xhr.responseText) ", JSON.parse(xhr.responseText))
+      var response = JSON.parse(xhr.responseText);
+      console.log(response.success);
     }
-    if(displayData){
-      jsPsych.data.displayData(); //Display the data onto the browser screen
-    }
-    if(psiTurkIsOn){
-      psiturk.saveData({
-        success: function(){
-          psiturk.completeHIT(); //Complete the HIT
-        }
-      });
-    }
-  },
-  on_trial_finish: function(){ //Execute this after every trial
-    if (psiTurkIsOn){
-      save_data(tableName, [jsPsych.data.get().last(1).values()[0]]);
-    }
-  }
-});
-
-
-//------psiTurk Functions Begin------
-
-//A function to save the data to the SQL table on the psiturk server.  This gets called at the end of the file.
-function save_data(data_table,data){
-
-  //Retrieve data from psiTurk and add to jsPsych data
-  jsPsych.data.addProperties(
-    {
-      workerId: psiturk.taskdata.get('workerId'),
-      assignmentId: psiturk.taskdata.get('assignmentId'),
-      hitId: psiturk.taskdata.get('hitId')
-    }
-  );
-
-  //Use AJAX to post the data onto the psiturk server
-  $.ajax({
-    type:'post',
-    cache: false,
-    url: 'https://psiturk.psych.ucla.edu/~' + username + '/' + folderName + '/templates/savedata.php',
-    data: {
-      table: data_table,
-      json: JSON.stringify(data),
-    },
-    success: function(output) { console.log(output); } // write the result to javascript console
-  });
+  };
+  xhr.send(jsPsych.data.get().json());
 }
 
-//------psiTurk Functions End------
-
+// with on_finish handler
+jsPsych.init({
+  timeline: timeline,
+  on_finish: saveData
+});
 
 
 </script>
