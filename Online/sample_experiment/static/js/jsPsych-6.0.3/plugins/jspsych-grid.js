@@ -15,8 +15,6 @@ jsPsych.plugins["grid"] = (function() {
 
 	var plugin = {};
 
-	jsPsych.pluginAPI.registerPreload('grid', 'stimulus', 'image');
-
 	plugin.info = {
 	    name: "grid",
 			parameters: {
@@ -75,7 +73,13 @@ jsPsych.plugins["grid"] = (function() {
 		      pretty_name: "Shape in text",
 		      default: [],
 		      description: "Key for the shape to draw in text"
-		    }
+		    },
+				text_below: {
+		      type: jsPsych.plugins.parameterType.STRING,
+		      pretty_name: "Text below",
+		      default: "",
+		      description: "Text to place below grid"
+		    },
 	    }
 	 }
 
@@ -89,14 +93,14 @@ jsPsych.plugins["grid"] = (function() {
 
 		//Convert the parameter variables to those that the code below can use
 		var trial_duration = trial.trial_duration; //The duration of the trial
-		var frame_duration = trial.frame_duration //The time each frame in the animation lasts
+		var frame_duration = trial.frame_duration; //The time each frame in the animation lasts
 		var bright_block_IDs = trial.bright_block_IDs; //The ID numbers of the blocks that get brighter
 		var starting_brightness = trial.starting_brightness; //The brightness that the blocks start at
 		var brightness_change = trial.brightness_change; //The amount by which the brightness of the blocks specified in bright_block_IDs change
 		var animation_duration = trial.animation_duration; //Time for fade-in
 		var text_above = trial.text_above; //The text displayed above the grid
 		var shape_in_text = trial.shape_in_text; // The shape to draw near the text. Is something like [0,1,2,4,7] for a T, for instance
-
+		var text_below = trial.text_below; //The text displayed above the grid
 
 		//--------------------------------------
 		//----------SET PARAMETERS END----------
@@ -138,10 +142,15 @@ jsPsych.plugins["grid"] = (function() {
 		//Set the canvas background color
 		canvas.style.backgroundColor = backgroundColor;
 
-		//Add the text
+		//Add the text above
 		ctx.textAlign = "center";
 	  ctx.font = "30px Arial";
 		ctx.fillText(text_above, canvasWidth/2, canvasHeight/4);
+
+		//Add the text below
+		ctx.textAlign = "center";
+	  ctx.font = "30px Arial";
+		ctx.fillText(text_below, canvasWidth/2, canvasHeight*3/4);
 
 		//Add the shape
 		ctx.lineWidth = 8;
@@ -260,10 +269,26 @@ jsPsych.plugins["grid"] = (function() {
 
 		//as it's currently set up, the grid is displayed plain for onset_of_animaption + frame_duration amont of time
 		var frame_times = make_array(start = onset_of_animation, to = trial_duration-frame_duration, by = frame_duration)
-		var brightnesses = make_array(start = starting_brightness+brightness_change/(frame_times.length), to = starting_brightness+brightness_change, by = brightness_change/(frame_times.length))
+		var brightnesses = make_array(start = starting_brightness+brightness_change/(frame_times.length), to = starting_brightness+brightness_change, by = brightness_change/(frame_times.length));
 
-		console.log("frame_times", frame_times)
-		console.log("brightnesses", brightnesses)
+		//force brightnesses to have the same length as frame_times
+		if (brightnesses.length !== frame_times.length){
+			console.log("frame_times", frame_times);
+			console.log("brightnesses", brightnesses);
+			console.log("frame_times.length", frame_times.length);
+			console.log("brightnesses.length", brightnesses.length);
+			while (brightnesses.length < frame_times.length){
+				brightnesses.push(starting_brightness+brightness_change);
+			}
+			while (brightnesses.length > frame_times.length){
+				brightnesses.pop();
+			}
+			console.log("frame_times", frame_times);
+			console.log("brightnesses", brightnesses);
+		}
+
+		//make sure they have the same length
+		console.assert(frame_times.length == brightnesses.length, "frame_times and brightnesses have different lengths!")
 
 		display_grid(starting_brightness);
 
@@ -271,9 +296,7 @@ jsPsych.plugins["grid"] = (function() {
 			index_dynamic = 0;//need an index that changes dynamically as we go through
 			//timeouts
 			jsPsych.pluginAPI.setTimeout(function() {
-
-
-				show_next_frame(brightnesses[index_dynamic], bright_block_IDs);
+				show_next_frame(brightnesses[index_dynamic], bright_block_IDs, starting_brightness);
 				index_dynamic++
 			}, frame_times[index]);
 		};
@@ -296,6 +319,7 @@ jsPsych.plugins["grid"] = (function() {
 		//(x,y) is the location of the upper left corner of the square. side_length
 		//is the length of the square's sides. color is a float between 0 and 255
 		function draw_square(x, y, side_length, color){
+			ctx.lineWidth = 1 //just making sure
 			bs = color.toString();
 			string = 'rgb(' + bs + ',' + bs + ',' + bs + ')'
 			ctx.beginPath();
@@ -304,8 +328,12 @@ jsPsych.plugins["grid"] = (function() {
 			ctx.strokeRect(x, y, side_length, side_length);
 		};
 
-		function show_next_frame(brightness, bright_block_IDs) {
+		function show_next_frame(brightness, bright_block_IDs, starting_brightness) {
 			var id = 0; //id will go from 0 to 8 for the 9 squares
+
+			//clear whatever was within a pixel of the full grid before there before
+			ctx.clearRect(x-1, y-1, 3*square_side_length+2, 3*square_side_length+2);
+
 			for (j = 0; j < dim; j++){
 				for (i = 0; i < dim; i++){
 					if (bright_block_IDs.includes(id)){
@@ -327,7 +355,7 @@ jsPsych.plugins["grid"] = (function() {
 				result.push(i);
 				i = i + by;
 			}
-			if (result !== by){
+			if (result[result.length] !== to){
 				console.log("to minus start was not divisible by by")
 			}
 			return result;
@@ -344,7 +372,9 @@ jsPsych.plugins["grid"] = (function() {
 				"starting_brightness": JSON.stringify(trial.starting_brightness),
 				"brightness_change": JSON.stringify(trial.brightness_change),
 				"animation_duration": JSON.stringify(trial.animation_duration),
-				"text_above": JSON.stringify(trial.text_above)
+				"text_above": JSON.stringify(trial.text_above),
+				"shape_in_text": JSON.stringify(trial.shape_in_text),
+				"text_below": JSON.stringify(trial.text_below)
       };
 
       jsPsych.finishTrial(trial_data);
