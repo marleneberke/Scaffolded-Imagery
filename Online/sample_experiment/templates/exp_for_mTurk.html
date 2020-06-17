@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--Change the title-->
+  <title>sampleExperiment</title>
+
+  <!--jsPsych necessities start-->
+  <script src="../static/js/jsPsych-6.0.3/jspsych.js"></script>
+  <script src="../static/js/pest.js"></script>
+  <link href="../static/js/jsPsych-6.0.3/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+  <!--jsPsych necessities end-->
+
+  <!--jsPsych plugins start-->
+  <!--//////////////////|\\\\\\\\\\\\\\\\\\-->
+  <!--//     Your jsPsych plugins here    \\-->
+
+  <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-grid-html-keyboard-response.js"></script>
+  <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>
+  <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-instructions.js"></script>
+  <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-grid.js"></script>
+  <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-survey-text.js"></script>
+
+
+  <!--\\                                 //-->
+  <!--\\\\\\\\\\\\\\\\\\|//////////////////-->
+  <!--jsPsych plugins end-->
+
+</head>
+<body>
+<script>
+
+/******** WHAT EXPERIMENT MODE ********/
+var limitToDesktop = true;
+var limitToGoogle = false;
+var forceFullscreen = true;
+var checkMturk = false;
+
+/******** EXCLUDE BY BROWSER ********/
+function getBrowserInfo() {
+  var ua = navigator.userAgent,
+  tem,
+  M = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+  if (/trident/i.test(M[1])) {
+    tem = /\brv[ :]+(\d+)/g.exec(ua) || [];
+    return 'IE ' + (tem[1] || '');
+  }
+  if (M[1] === 'Chrome') {
+    tem = ua.match(/\b(OPR|Edge)\/(\d+)/);
+    if (tem != null) return tem.slice(1).join(' ').replace('OPR', 'Opera');
+  }
+  M = M[2] ? [M[1], M[2]] : [navigator.appName, navigator.appVersion, '-?'];
+  if ((tem = ua.match(/version\/(\d+)/i)) != null)
+  M.splice(1, 1, tem[1]);
+  return {
+    'browser': M[0],
+    'version': M[1]
+  };
+};
+
+var check = false;
+function mobileAndTabletCheck() {
+  (function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4))) check = true;})(navigator.userAgent||navigator.vendor||window.opera);
+  return check;
+};
+
+/******** STARTING VARIABLES ********/
+function get_viewport_size(){
+    var test = document.createElement( "div" );
+
+    test.style.cssText = "position: fixed;top: 0;left: 0;bottom: 0;right: 0;";
+    document.documentElement.insertBefore( test, document.documentElement.firstChild );
+
+    var dims = { width: test.offsetWidth, height: test.offsetHeight };
+    document.documentElement.removeChild( test );
+
+    return dims;
+};
+
+//Timeline array to be fed into the jsPsych.init function
+var timeline = [];
+
+var browserInfo = getBrowserInfo();
+if(browserInfo.browser !== 'Chrome') {
+  Message = "This experiment only has support for Google Chrome. Please reopen the experiment in Google Chrome."
+  var wrong_browser =  {
+    type: 'text',
+    text: '<p>This experiment only has support for Google Chrome.</p>'
+    +'<p>Please reopen the experiment in Google Chrome.</p>',
+    type: 'html-keyboard-response',
+    stimulus: [
+      '<p style="font-size: 26px;">' + Message + '</p>'
+    ],
+    choices: jsPsych.NO_KEYS,
+  };
+
+  timeline.push(wrong_browser);
+}
+
+//later, make random
+//participant_ID = "Tester";
+var participant_code = randomStr(10, '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+jsPsych.data.addProperties({random_participant_ID: participant_code}); //add the subject to everything
+
+var starting_brightness = 200
+//at most, squares can become white
+var maximum_brightness_change = 255 - starting_brightness
+var starting_brightness_change = 20
+var current_brightness_change = starting_brightness_change; //keeps track of current value in staircase
+
+//Variables for 3 Down / 1 Up
+var down_threshold = 3; // 3 Down
+var up_threshold = 1; // 1 Up
+var upper_brightness_change_limit = maximum_brightness_change;
+var lower_brightness_change_limit = 0.1; //was erroring when set to 0.0
+var correct_streak_counter = 0;
+var incorrect_streak_counter = 0;
+
+//Variables for PEST
+var current_step_size = 15; //Global variable to hold the current step size
+var minimum_step_size = 0.1; //Smallest step size
+var maximum_step_size = 15; //Largest step size
+
+//Create the parameter object for PEST
+var pestParameters = {
+  starting_intensity: starting_brightness_change,
+  down_threshold: down_threshold,
+  up_threshold: up_threshold,
+  upper_intensity_limit: upper_brightness_change_limit,
+  lower_intensity_limit: lower_brightness_change_limit,
+  starting_step_size: current_step_size,
+  min_step_size: minimum_step_size,
+  max_step_size: maximum_step_size
+};
+
+var pest = new pest(pestParameters);
+
+//8 shapes
+var shapes = [[0,1,2,3,6], [0,1,2,5,8], [0,3,6,7,8], [2,5,8,6,7],
+[0,1,2,4,7], [1,4,6,7,8], [0,3,6,4,5], [3,4,5,2,8]];
+
+var q_conf = {
+  type: 'html-keyboard-response',
+  stimulus: [
+    'How confident are you? <p> (Press 1 for confident and 2 for unsure)'
+  ],
+  choices: ["1", "2"],
+  data: {descriptive_trial_type: "qconf"},
+  on_finish: function(data){
+    data.response=jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
+  }
+};
+
+var transition = {
+  type: 'instructions',
+  pages: [
+    "For the next several trials, you don't need to imagine anything."
+  ],
+  show_clickable_nav: true
+};
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////Here's where the real action happens/////////////////////
+
+instructions(timeline);
+
+practice(timeline, q_conf);
+
+var num_staircase1_trials = 40;
+staircase(num_staircase1_trials, timeline, pest, shapes, q_conf);
+
+//randomize order
+if (Math.random()<0.5){
+  block_with_no_imagery(timeline, shapes, q_conf);
+  block_with_imagery(timeline, shapes, q_conf);
+  //transition for coming off of imagery block
+  timeline.push(transition);
+
+} else {
+  block_with_imagery(timeline, shapes, q_conf);
+  //transition for coming off of imagery block
+  timeline.push(transition);
+  block_with_no_imagery(timeline, shapes, q_conf);
+}
+
+var num_staircase2_trials = 20;
+staircase(num_staircase2_trials, timeline, pest, shapes, q_conf);
+
+VVIQ(timeline);
+
+demographics(timeline);
+
+give_code(timeline, participant_code);
+
+//-----------------Helper functions-----------------//
+
+//The staircase function pushes everything needed for staircasing
+//to the timeline
+
+function instructions(timeline){
+
+  var survey = {
+    type: 'survey-text',
+    questions: [
+      {prompt: "Please enter your worker ID"},
+    ],
+    data: {descriptive_trial_type: "get_worker_ID"}
+  };
+  timeline.push(survey);
+
+  var consent_duration = 20;
+  var consent_pay = "$" + (consent_duration * 8/60).toFixed(2).toString();
+
+  var consent = {
+    type: 'html-keyboard-response',
+    choices: ['y'],
+    stimulus: "<h1>Informed Consent Form</h1><div style='width: 100%; text-align: center'><div style='display: inline-block; margin: 0 auto; padding: 10px 200px 10px 200px; text-align: left'><h4>Purpose</h4><p>We are conducting research on perception and imagination.</p> <h4>Procedures</h4><p>This experiment takes around "+consent_duration.toString()+" minutes to complete. You will view grids of squares and detect shapes in them. You will also be asked to imagine shapes in the grids. Last, you will be asked to fill out a questionnaire about the vividness of your mental imagery. You will receive <strong>"+consent_pay+"</strong> upon completing the experiment. </p><h4>Risks and Benefits</h4><p>Completing this task poses no more risk of harm to you than do the experiences of everyday life (e.g., from working on a computer). Although this study will not benefit you personally, it will contribute to the advancement of our understanding of human reasoning.</p><h4>Confidentiality</h4><p>All of the responses you provide during this study will be anonymous. You will not be asked to provide any identifying information, such as your name, in any of the questionnaires. Typically, only the researchers involved in this study and those responsible for research oversight will have access to the information you provide. However, we may also share the data with other researchers so that they can check the accuracy of our conclusions; this will not impact you because the data are anonymous. The researcher will not know your name, and no identifying information will be connected to your survey answers in any way. The survey is therefore anonymous. However, your account is associated with an mTurk number that the researcher has to be able to see in order to pay you, and in some cases these numbers are associated with public profiles which could, in theory, be searched. For this reason, though the researcher will not be looking at anyone&#8217s public profiles, the fact of your participation in the research (as opposed to your actual survey responses) is technically considered &ldquo;confidential&rdquo; rather than truly anonymous. </p><h4>Voluntary Participation</h4><p> Your participation in this study is voluntary. You are free to decline to participate, to end your participation at any time for any reason, or to refuse to answer any individual question. </p><h4>Questions</h4><p>If you have any questions about this study, you may contact Julian Jara-Ettinger at julian.jara-ettinger@yale.edu. If you would like to talk with someone other than the researchers to discuss problems or concerns, to discuss situations in the event that a member of the research team is not available, or to discuss your rights as a research participant, you may contact the Yale Human Subjects Committee below, and mention HSC number 2000020357: <p> <p align='left' style='text-indent:180px;margin:0;'>Yale University Human Subjects Committee</p> <p align='left' style='text-indent:180px;margin:0;'>Box 208010, New Haven, CT 06520-8010</p> <p align='left' style='text-indent:180px;margin:0;'>(203) 785-4688; human.subjects@yale.edu</p> <p> Additional information is available <a href=\"https://your.yale.edu/research-support/human-research/research-participants/rights-research-participant\"> here </a> </p><h4>Agreement to participate</h4><p>By clicking the button, you acknowledge that you have read the above information, and agree to participate in the study. You must be at least 18 years of age to participate; agreeing to participate confirms you are 18 years of age or older. Click the Y key to confirm your agreement and continue.</p>",
+    prompt: "<h3>PRESS THE Y KEY TO CONSENT</h3><p></p><p></p>",
+    data: {descriptive_trial_type: "consent"}
+  };
+
+  timeline.push(consent);
+
+  var inst0 = {
+    type: 'instructions',
+    pages: [
+      'Welcome to the experiment. Please make your browser window full screen, and keep it full screen for the whole experiment.',
+      'In this experiment, you will complete multiple repetitions of the same task.'
+    ],
+    show_clickable_nav: true
+  };
+
+  // var grid0 = {
+  //   type: 'grid',
+  //   frame_duration: 5000, //whole time
+  //   bright_block_IDs: [],
+  //   starting_brightness: starting_brightness,
+  //   brightness_change: current_brightness_change,
+  //   animation_duration: 5000, //whole time
+  //   text_above: "",
+  //   shape_in_text: [],
+  //   text_below: "The display will proceed on its own"
+  // }
+  var grid_keyboard1 = {
+    type: 'grid-html-keyboard-response',
+    choices: ['space'],
+    stimulus: "In each trial, you will be asked to imagine shapes using the squares of a grid (such as the one below)",
+    stimulus_font: "18px Arial",
+    prompt: "Press the spacebar to continue",
+    starting_brightness: starting_brightness
+  };
+
+  var inst1 = {
+    type: 'instructions',
+    pages: [
+      'For instance, you might be asked to imagine an L shape superimposed on the grid. On the next page, we have highlighted the relevant squares to show you what we mean.'
+    ],
+    show_clickable_nav: true
+  };
+
+  var grid1 = {
+    type: 'grid',
+    frame_duration: 5000, //whole time
+    bright_block_IDs: [0,3,6,7,8],
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change,
+    animation_duration: 5000, //whole time
+    text_above: "Imagine the following shape: ",
+    shape_in_text: [0,3,6,7,8],
+    text_below: "The display will proceed on its own"
+  };
+
+  var inst15 = {
+    type: 'instructions',
+    pages: [
+      'Here are a couple more examples.'
+    ],
+    show_clickable_nav: true
+  };
+
+  var grid2 = {
+    type: 'grid',
+    frame_duration: 5000, //whole time
+    bright_block_IDs: [0,1,2,4,7],
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change,
+    animation_duration: 5000, //whole time
+    text_above: "Imagine the following shape: ",
+    shape_in_text: [0,1,2,4,7],
+    text_below: "The display will proceed on its own"
+  }
+
+  var grid3 = {
+    type: 'grid',
+    frame_duration: 5000, //whole time
+    bright_block_IDs: [0,1,2,3,6],
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change,
+    animation_duration: 5000, //whole time
+    text_above: "Imagine the following shape: ",
+    shape_in_text: [0,1,2,3,6],
+    text_below: "The display will proceed on its own"
+  }
+
+  var inst2 = {
+    type: 'instructions',
+    pages: [
+      "Now try it yourself!  We will show you a blank grid. Try imagining the following shape until you can almost \"see\" it superimposed on the grid:"
+    ],
+    show_clickable_nav: true
+  };
+
+  var grid_keyboard = {
+    type: 'grid-html-keyboard-response',
+    choices: ['space'],
+    stimulus: "Imagine the letter T",
+    prompt: "Press the spacebar once you can picture the shape",
+    starting_brightness: starting_brightness
+  };
+
+  var inst3 = {
+    type: 'instructions',
+    pages: [
+      "While you are imagining, some of the squares may grow brighter. Sometimes, it will be a faint change, and other times, it will be a more obvious change. The squares that change brightness might either be the ones making up the shape which you were asked to imagine, or they might make up a different shape. Your task is to press the , key if the some squares grew brighter and the . key if not.",
+      "The task is designed to be difficult. Sometimes, you will be sure that there was a change, while other times, you'll be uncertain.  After every trial, you will be asked to rate your confidence in whether or not there was a change.  You can do this by keying in a number corresponding your confidence: 1 when you are *certain* there was a change, and 2 when you are *uncertain*.",
+      "Each trial will last 5 seconds. When asked, please try to imagine the shape for the whole time as best you can. Your data will only be useful to us if you do!",
+      "You will now begin a series of practice trials to get a better sense of the task.  You won't be asked to imagine anything yet.  Just try to detect whether any of the squares changed brightness. Afterwards, the experiment will begin. Place your fingers on the , and . keys to prepare."
+    ],
+    show_clickable_nav: true
+  };
+
+  timeline.push(inst0, grid_keyboard1, inst1, grid1, inst15, grid2, grid3, inst2, grid_keyboard, inst3);
+
+};
+
+function practice(timeline, q_conf){
+  var num_practice_trials = 6;
+
+  practice_trials = [];
+
+  for (i = 0; i < num_practice_trials; i++) {
+    if (i < num_practice_trials/2){
+      practice_trials.push(shapes[Math.floor(Math.random()*shapes.length)]);
+    } else {
+      practice_trials.push([]);
+    }
+  }//end for loop
+
+  practice_trials = practice_trials.sort(() => Math.random() - 0.5);
+  console.log(practice_trials)
+
+  for (i = 0; i < num_practice_trials; i++){
+    var grid = {
+      type: 'grid',
+      frame_duration: 50,
+      bright_block_IDs: function(){
+        bright_block_IDs = practice_trials.shift(); //removes first element from trials
+        console.log("bright_block_IDs ", bright_block_IDs)
+        return bright_block_IDs;
+      },
+      //change: change,
+      starting_brightness: starting_brightness,
+      brightness_change: current_brightness_change,
+      data: {descriptive_trial_type: "grid"}
+    }
+
+    var q_change = {
+      type: 'html-keyboard-response',
+      stimulus: [
+        'Was there a change in brightness? <p> (Press the , key for Yes or the . key for No)'
+      ],
+      choices: [",","."],
+      data: {descriptive_trial_type: "q_change"},
+      on_finish: function(data){
+        //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
+        jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
+        data.response = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
+        data.correct = data.response == data.correct_response
+        console.log("correct ", data.correct);
+        last_trial_was_correct = data.correct;
+        correct_answer = data.correct_response;
+        console.log("last trial was correct", last_trial_was_correct);
+        //correct_choice: correctresponseCoh()
+        //current_brightness_change = pest.staircase(data.correct);
+      }
+    }
+
+    var feedback = {
+      type: 'instructions',
+      pages: function(){
+        return [getText(last_trial_was_correct, correct_answer)]
+      },
+      show_clickable_nav: true
+    };
+
+    timeline.push(grid, q_change, q_conf, feedback);
+  }; //end of for loop
+
+  var inst = {
+    type: 'instructions',
+    pages: [
+      'Great job! The practice trials are over, and it is time to start the experiment!',
+      'The shapes may get fainter and harder to detect -- but this is okay!  Just do your best in each trial.  This is a difficult task, and will require concentration.  Please do your best to stay focused throughout the task. Again, your data will only be useful to us if you do.',
+      'Get ready for the challenge!'
+    ],
+    show_clickable_nav: true
+  };
+
+  timeline.push(inst);
+}; //end of practice function
+
+function staircase(num_staircase_trials, timeline, pest, shapes, q_conf){
+  //maximum of trials is 64 unless I change the way they're generated
+  //possible shapes or empty
+  var temp = shapes;
+  var empties = [];
+  for (i = 0; i < shapes.length; i++){
+    empties.push([]);
+  };
+  var staircase_trials = temp.concat(empties);
+  var staircase_trials = staircase_trials.concat(staircase_trials); //now there are 8*2*2 = 32 options
+  var staircase_trials = staircase_trials.concat(staircase_trials); //now there are max 64 trials
+  //shuffles the array
+  staircase_trials = staircase_trials.sort(() => Math.random() - 0.5);
+  console.log("staircase_trials ", staircase_trials);
+
+  for (i = 0; i < num_staircase_trials; i++){
+
+    var grid = {
+      type: 'grid',
+      frame_duration: 50,
+      data: {descriptive_trial_type: "grid"},
+      bright_block_IDs: function(){
+        bright_block_IDs = staircase_trials.shift(); //removes first element from trials
+        console.log("bright_block_IDs ", bright_block_IDs);
+        return bright_block_IDs;
+      },
+      //change: change,
+      starting_brightness: starting_brightness,
+      brightness_change: function(){
+        //want to make it dynamic so staircasing will work
+        console.log("current_brightness_change", current_brightness_change);
+        return current_brightness_change;
+      },
+    };
+
+    var q_change = {
+      type: 'html-keyboard-response',
+      stimulus: [
+        'Was there a change in brightness? <p> (Press the , key for Yes or the . key for No)'
+      ],
+      choices: [",","."],
+      data: {descriptive_trial_type: "q_change"},
+      on_finish: function(data){
+        //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
+        jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
+        data.response = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
+        data.correct = data.response == data.correct_response
+        //correct_choice: correctresponseCoh()
+        current_brightness_change = pest.staircase(data.correct);
+      }
+    };
+
+    //Push the trials into the timeline array
+    //timeline.push(hello_trial);
+    timeline.push(grid);
+    timeline.push(q_change);
+    timeline.push(q_conf);
+
+  }; //end for loop
+}; //end function
+
+function block_with_no_imagery(timeline, shapes, q_conf){
+  var num_trials = 16; //best as multiples of 8 for the 8 shapes
+  //double the trials with a shape in them
+  var temp = shapes;
+  //var factor = num_trials/length(shapes);
+  var empties = [];
+  for (i = 0; i < temp.length; i++){
+    empties.push([]);
+  };
+  var trials = temp.concat(empties);
+  //shuffles the array
+  trials = trials.sort(() => Math.random() - 0.5);
+
+  //throw an error if length of trials is not equal to num_trials
+  try {
+    if(trials.length != num_trials){
+      throw "mismatch between num_trials and length of trials"
+    }
+  }
+  catch(err) {
+    message.innerHTML = "Input " + err;
+  }
+
+  for (i = 0; i < num_trials; i++){
+
+    var grid = {
+      type: 'grid',
+      frame_duration: 50,
+      data: {descriptive_trial_type: "grid_no_imagery_block"},
+      bright_block_IDs: function(){
+        bright_block_IDs = trials.shift(); //removes first element from trials
+        return bright_block_IDs;
+      },
+      //change: change,
+      starting_brightness: starting_brightness,
+      brightness_change: function(){
+        //want to make it dynamic so staircasing will work
+        return current_brightness_change
+      },
+    };
+
+    var q_change = {
+      type: 'html-keyboard-response',
+      stimulus: [
+        'Was there a change in brightness? <p> (Press the . key for Yes or the left for No)'
+      ],
+      choices: [",","."],
+      data: {descriptive_trial_type: "q_change"},
+      on_finish: function(data){
+        //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
+        jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
+        data.response = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
+        data.correct = data.response == data.correct_response
+        //correct_choice: correctresponseCoh()
+        //current_brightness_change = pest.staircase(data.correct);
+      }
+    };
+
+    //Push the trials into the timeline array
+    timeline.push(grid);
+    timeline.push(q_change);
+    timeline.push(q_conf);
+
+  } //end for loop
+
+} //end block_with_no_imagery function
+
+function block_with_imagery(timeline, shapes, q_conf){
+
+  var inst = {
+    type: 'instructions',
+    pages: [
+      'In this section, you will be asked to imagine shapes before detecting whether or not a shape has appeared.',
+    ],
+    show_clickable_nav: true
+  };
+
+  timeline.push(inst);
+
+  var num_trials = 32; //best as multiples of 8 for the 8 patterns
+  var num_shapes_to_imagine = 8;
+  var trials_per_imagined_shape = 4;
+
+  var trials = []; //holds the shapes to be displayed
+  var imagine = []; //holds the shapes to imagine
+
+  //build instructions and stim
+  for (s = 0; s < num_shapes_to_imagine; s++){
+    for (t = 0; t < trials_per_imagined_shape; t++){
+      imagine.push(shapes[s]);
+      //for half the trials, nothing will be displayed
+      if (t < trials_per_imagined_shape/2){
+        trials.push([]);
+        //for a quarter of the trials, some other shape will be displayed
+      } else if (t < trials_per_imagined_shape*3/4) {
+        //sample randomly from shapes, with replacement
+        var sampled = shapes[Math.floor(Math.random()*shapes.length)];
+        //if it sampled the same shape as is beging imagined, sample again
+        while (sampled == shapes[s]){
+          sampled = shapes[Math.floor(Math.random()*shapes.length)];
+        }
+        trials.push(sampled);
+        //else, sample the same shape as imagined
+      } else {
+        trials.push(shapes[s]);
+      } //end of else
+    } //end of inner for loop
+  } //end of outer for loop
+
+  //throw an error if length of trials is not equal to num_trials
+  try {
+    if(trials.length != num_trials || imagine.length != num_trials){
+      throw "mismatch between num_trials and length of trials"
+    }
+  }
+  catch(err) {
+    message.innerHTML = "Input " + err;
+  }
+
+  //shuffles both the arrays
+  shuffle_both(imagine, trials);
+
+  for (i = 0; i < num_trials; i++){
+
+    var grid = {
+      type: 'grid',
+      frame_duration: 50,
+      bright_block_IDs: function(){
+        //why can't I do this statically? -- ans: because I need access to these values?
+        bright_block_IDs = trials.shift(); //removes first element from trials
+        return bright_block_IDs;
+      },
+      //change: change,
+      starting_brightness: starting_brightness,
+      brightness_change: function(){
+        //want to make it dynamic so staircasing will work
+        return current_brightness_change
+      },
+      text_above: "Imagine the shape: ",
+      shape_in_text: function(){
+        shape_in_text = imagine.shift(); //removes first element from imagine
+        return shape_in_text;
+      },
+      data: {descriptive_trial_type: "grid_imagery_block"}
+    };
+
+    var q_change = {
+      type: 'html-keyboard-response',
+      stimulus: [
+        'Was there a change in brightness? <p> (Press the , key for Yes or the . key for No)'
+      ],
+      choices: [",","."],
+      data: {descriptive_trial_type: "q_change"},
+      on_finish: function(data){
+        //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
+        jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
+        data.response = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press);
+        data.correct = data.response == data.correct_response;
+        //correct_choice: correctresponseCoh()
+        //current_brightness_change = pest.staircase(data.correct);
+      }
+    };
+
+    //Push the trials into the timeline array
+    timeline.push(grid);
+    timeline.push(q_change);
+    timeline.push(q_conf);
+  } //end for loop
+
+} //end of function
+
+function VVIQ(timeline){
+  var vviq_intro = {
+    type: 'html-keyboard-response',
+    choices: ['space'],
+    stimulus: "<div style='width: 75%; margin: 0 auto; min-width: 1000px'><p style='text-align: left'>Now, we will move on to the next section.<br><br>For each item on this questionnaire, try to form a visual image, and consider your experience carefully. For any image that you do experience, rate how vivid it is using the five-point scale described below. If you do not have a visual image, rate vividness as '1'. Only use '5' for images that are truly as lively and vivid as real seeing.<br><br>5 - Perfectly clear and vivid as real seeing<br>4 - Clear and reasonably vivid<br>3 - Moderately clear and lively<br>2 - Vague and dim<br>1 - No image at all, you only 'know' that you are thinking of the object<br><br><strong>Please note that there are no right or wrong answers to the questions, and that it is not necessarily desirable to experience imagery or, if you do, to have more vivid imagery.</strong><br><br></div>",
+    prompt: "Press the spacebar to begin.",
+    data: {descriptive_trial_type: 'vviq_intro'}
+  };
+
+  var vviq_prompt = function(eye_condition, vviq_heading, vviq_item, vviq_id){
+    var trial_prompt = {
+      type: 'html-keyboard-response',
+      choices: ['1', '2', '3', '4', '5'],
+      stimulus: "<div style='width: 75%; margin: 0 auto; min-width: 1000px;'><p style='text-align: left'>Now imagine with your eyes <strong>"+eye_condition+".</strong> <br><br> <strong>"+vviq_heading+"</strong> <br><br> Consider carefully the picture that comes before your mind's eye.<br>How vividly can you imagine...<br><br> <strong>"+vviq_item+"</strong><br><br> 5 - Perfectly clear and vivid as real seeing<br>4 - Clear and reasonably vivid<br>3 - Moderately clear and lively<br>2 - Vague and dim<br>1 - No image at all, you only 'know' that you are thinking of the object</p></div>",
+      data: {descriptive_trial_type: 'vviq', vviq_id: vviq_id},
+      on_finish: function(data){
+        data.vviq_response = parseInt(String.fromCharCode(data.key_press));
+      }
+    };
+    return trial_prompt;
+  };
+
+  timeline.push(vviq_intro);
+  var vviq_heading_sequence = {1: "Think of some relative or friend whom you frequently see (but who is not with you at present).", 2: "Visualise a rising sun.", 3: "Think of the front of a shop which you often go to.", 4: "Finally think of a country scene which involves trees, mountains and a lake."};;
+  var vviq_item_sequence = {1: "The exact contour of face, head, shoulders and body",
+  2: "Characteristic poses of head, attitudes of body etc.",
+  3: "The precise carriage, length of step etc., in walking",
+  4: "The different colours worn in some familiar clothes",
+  5: "The sun rising above the horizon into a hazy sky",
+  6: "The sky clears and surrounds the sun with blueness",
+  7: "Clouds. A storm blows up with flashes of lightning",
+  8: "A rainbow appears",
+  9: "The overall appearance of the shop from the opposite side of the road",
+  10: "A window display including colours, shapes and details of individual items for sale",
+  11: "You are near the entrance. The colour, shape and details of the door",
+  12: "You enter the shop and go to the counter. The counter assistant serves you",
+  13: "The contours of the landscape",
+  14: "The colour and shape of the trees",
+  15: "The colour and shape of the lake",
+  16: "A strong wind blows on the trees and on the lake causing waves in the water"};
+
+  var num_vviq_headings = 4;
+  var num_vviq_items = 4;
+
+  var item_count = 1;
+  for (p = 1; p < num_vviq_headings+1; p++){
+    for (i = 0; i < num_vviq_items; i++){
+      timeline.push(vviq_prompt('OPEN', vviq_heading_sequence[p], vviq_item_sequence[item_count], item_count));
+      item_count++;
+    };
+  };
+
+  var inst = {
+    type: 'instructions',
+    pages: [
+      'Now we would like you to try to imagine these things with your eyes closed.'
+    ],
+    show_clickable_nav: true
+  }
+  timeline.push(inst);
+
+  var item_count = 16;
+  for (p = 1; p < num_vviq_headings+1; p++){
+    for (i = 0; i < num_vviq_items; i++){
+      timeline.push(vviq_prompt('CLOSED', vviq_heading_sequence[p], vviq_item_sequence[item_count-15], item_count));
+      item_count++;
+    };
+  };
+}; //end of VVIQ function
+
+function demographics(timeline){
+
+  // var demographics = [
+  //   {
+  //     html: '<p>Finally, we just have a couple questions for you!<br>Please note that you must answer <strong>ALL</strong> the questions before pressing the CONTINUE button below.  Otherwise, the page will refresh and clear any answers you may have already typed.' +
+  //     "<div style='width: 50%; text-align: left; margin: 0 auto'>" +
+  //     '<p>Age: <br><input name="age" type="number" style="width: 20%; border-radius: 4px; padding: 10px 10px; margin: 8px 0; border: 1px solid #ccc; font-size: 15px"/>' +
+  //     '<p>Please select your gender:<br><input type="radio" id="male" name="gender" value="male"><label for="male">Male</label><br><input type="radio" id="female" name="gender" value="female"><label for="female">Female</label><br><input type="radio" id="other" name="gender" value="other"><label for="other">Other</label><br>' +
+  //     '<p>How well do you think you did, out of 100% (with 1 being terrible, and 100 being perfect)? <br><input name="1_performance" type="number" max="100" style="width: 20%; border-radius: 4px; padding: 10px 10px; margin: 8px 0; border: 1px solid #ccc; font-size: 15px">' +
+  //     '<p>In 1-2 sentences, did you notice yourself using any particular strategies throughout the task? <br><input name="2_strategies" type="text" size="50" style="width: 100%; border-radius: 4px; padding: 10px 10px; margin: 8px 0; border: 1px solid #ccc; font-size: 15px"/>' +
+  //     '<p>In 1-2 sentences, what do you think this experiment was testing? <br><input name="3_experiment" type="text" size="50" style="width: 100%; border-radius: 4px; padding: 10px 10px; margin: 8px 0; border: 1px solid #ccc; font-size: 15px"/>' +
+  //     '<p>Sometimes, the disc grew larger.  How do you think this affected your performance? <br><input name="4_manipulation" type="text" size="50" style="width: 100%; border-radius: 4px; padding: 10px 10px; margin: 8px 0; border: 1px solid #ccc; font-size: 15px"/>' +
+  //     '<p>Anything else to share? <br><input name="5_final" type="text" size="50" style="width: 100%; border-radius: 4px; padding: 10px 10px; margin: 8px 0; border: 1px solid #ccc; font-size: 15px"/></p>' +
+  //     '<p>We know it is generally difficult to stay focused in these online experiments, especially when they take this long.  On a scale of 1-100 (with 1 being very distracted, and 100 being very focused), how well did you pay attention to the experiment?  (This will not affect whether you receive credit or compensation.  It will really just be helpful for us to know whether you took this experiment seriously). <br><input name="6_attention" type="number" max="100" style="width: 20%; border-radius: 4px; padding: 10px 10px; margin: 8px 0; border: 1px solid #ccc; font-size: 15px"></p>' +
+  //     '<p>Participant ID Code: <br><input name="id_code" type="number" style="width: 20%; border-radius: 4px; padding: 10px 10px; margin: 8px 0; border: 1px solid #ccc; font-size: 15px"/>' +
+  //     "</div>",
+  //     data: {descriptive_trial_type: 'demographics'}}
+  //   ];
+
+  var survey0 = {
+    type: 'survey-text',
+    questions: [
+      {prompt: "Please enter your age"},
+      {prompt: "Please enter your gender"},
+      {prompt: "How well do you think you did, out of 100% (with 1 being terrible, and 100 being perfect)?"},
+      {prompt: "In a section of the experiment, you were asked to imagine shapes on the grid. In 1-2 sentences, please describe your experience of imagining the shapes."},
+      {prompt: "In 1-2 sentences, how do you think imagining shapes might have affected your performance?"},
+      {prompt: "In 1-2 sentences, did you notice yourself using any particular strategies throughout the task?"},
+      {prompt: "In 1-2 sentences, what do you think this experiment was testing?"},
+      {prompt: "Any thoughts you'd like to share?"},
+      {prompt: "We know it can be difficult to stay focused in these online experiments, especially when they take so long.  On a scale of 1-100 (with 1 being very distracted, and 100 being very focused), how well did you pay attention to the experiment?  (This will not affect whether you receive credit or compensation.  It will just be helpful for us to know how much attention you paid to the experiment)."}
+    ]
+  };
+
+  timeline.push(survey0);
+} //end of demographics function
+
+function give_code(timeline, participant_code){
+  var give_code = {
+    type: 'html-keyboard-response',
+    choices: ['y'],
+    stimulus: "<h1>Thank you!</h1><p>Your survey code is "+participant_code+". Please enter this in mTurk.</p>",
+    prompt: "<h3>PRESS THE Y KEY TO END THE EXPERIMENT</h3><p></p><p></p>",
+    data: {descriptive_trial_type: "give_code"}
+  };
+  timeline.push(give_code);
+}
+//shuffles two arrays in the same way
+function shuffle_both(array, array2) {
+  var counter = array.length, temp, temp2, index;
+
+  // While there are elements in the array
+  while (counter > 0) {
+    // Pick a random index
+    index = Math.floor(Math.random() * counter);
+
+    // Decrease counter by 1
+    counter--;
+
+    // And swap the last element with it
+    temp = array[counter];
+    temp2 = array2[counter];
+
+    array[counter] = array[index];
+    array2[counter] = array2[index];
+
+    array[index] = temp;
+    array2[index] = temp2;
+  }
+}
+
+//This function gets the text for feedback
+function getText(correct, correct_answer){
+  if (correct_answer.toString() == ","){
+    ans = "Yes";
+  } else {
+    ans = "No";
+  };
+
+  var text = ans + ' was the correct answer'
+  if (correct==true){
+    text = '<p style="color:lime;"> Great job! ' + text + '</p>';
+  } else	{
+    text = '<p style="color:red;"> Incorrect. ' + text + '</p>';
+  };
+  return text;
+};
+
+function correct_response_fun(){
+  //or could have to do with blocks
+  if (bright_block_IDs.length == 0){
+    return "." //no
+  } else {
+    return "," //yes
+  }
+};
+
+//Generates  a random string of length len out of the items in arr
+function randomStr(len, arr) {
+  var ans = '';
+  for (var i = len; i > 0; i--) {
+    ans +=
+    arr[Math.floor(Math.random() * arr.length)];
+  }
+  return ans;
+}
+
+//-----------------Your code above this line-----------------//
+///////////////////////////////////////////////////////////////
+
+
+//---------Run the experiment---------
+
+//A function to save all the data to the server at once.
+function saveData() {
+  console.log("in saveData")
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'write_data.php'); // change 'write_data.php' to point to php script.
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.onload = function() {
+    if(xhr.status == 200){
+      console.log("xhr.responseText ", xhr.responseText);
+      console.log("JSON.parse(xhr.responseText) ", JSON.parse(xhr.responseText))
+      var response = JSON.parse(xhr.responseText);
+      console.log(response.success);
+    }
+  };
+  xhr.send(jsPsych.data.get().json());
+}
+
+//A function to save the data to the server incrementally.
+function save_data() {
+  console.log("in save_data")
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'write_data.php'); // change 'write_data.php' to point to php script.
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.onload = function() {
+    if(xhr.status == 200){
+      console.log("xhr.responseText ", xhr.responseText);
+      console.log("JSON.parse(xhr.responseText) ", JSON.parse(xhr.responseText))
+      var response = JSON.parse(xhr.responseText);
+      console.log(response.success);
+    }
+  };
+  xhr.send(jsPsych.data.get().last(1).json());
+}
+
+if (limitToGoogle){
+  var browserInfo = getBrowserInfo();
+  if (browserInfo.browser !== 'Chrome') {
+    Message = "This experiment is only supported by Google Chrome. Please reopen the experiment in Google Chrome."
+    var wrong_browser = {
+      //type: 'text',
+      //text: '<p>This experiment only has support for Google Chrome.</p>'
+      //         +'<p>Please reopen the experiment in Google Chrome.</p>',
+      type: 'html-keyboard-response',
+      stimulus: [
+        '<p style="font-size: 26px;">' + Message + '</p>'
+      ],
+      choices: jsPsych.NO_KEYS,
+    };
+    jsPsych.init({
+      timeline: [wrong_browser]
+    });
+  }
+};
+
+if (limitToDesktop){
+    var mobileCheck = mobileAndTabletCheck();
+    if (mobileCheck){
+        Message = "This experiment is only supported by desktop browsers, and cannot be run on a tablet or a phone. Please reopen the experiment in a desktop browser.  If you can only use a tablet or a phone, and are unable to switch to a desktop browser, please quit the experiment and return the HIT."
+        var wrong_browser = {
+            //type: 'text',
+            //text: '<p>This experiment only has support for Google Chrome.</p>'
+            //         +'<p>Please reopen the experiment in Google Chrome.</p>',
+            type: 'html-keyboard-response',
+            stimulus: [
+                '<p style="font-size: 26px;">' + Message + '</p>'
+            ],
+            choices: jsPsych.NO_KEYS,
+        };
+        jsPsych.init({
+            timeline: [wrong_browser]
+        });
+    } else if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(navigator.userAgent) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(navigator.userAgent.substr(0,4))){
+        Message = "This experiment is only supported by desktop browsers, and cannot be run on a tablet or a phone. Please reopen the experiment in a desktop browser.  If you can only use a tablet or a phone, and are unable to switch to a desktop browser, please quit the experiment and return the HIT."
+        var wrong_browser = {
+            //type: 'text',
+            //text: '<p>This experiment only has support for Google Chrome.</p>'
+            //         +'<p>Please reopen the experiment in Google Chrome.</p>',
+            type: 'html-keyboard-response',
+            stimulus: [
+                '<p style="font-size: 26px;">' + Message + '</p>'
+            ],
+            choices: jsPsych.NO_KEYS,
+        };
+        jsPsych.init({
+            timeline: [wrong_browser]
+        });
+    } else {
+        var mobile_prompt = {
+          type: 'html-keyboard-response',
+          stimulus: '<p>This experiment requires you to be using a desktop browser. The program should have automatically detected whether you are using a phone or a tablet.<p><strong>If you are using a phone or tablet and it has still allowed you to continue, please reopen the experiment in a desktop browser now.</strong><p>If you can only use a tablet or a phone, and are unable to switch to a desktop browser, please quit the experiment and return the HIT.</p><p>If you are on a desktop browser -- great!  Press the spacebar to continue.</p>'
+        };
+        var start_clock = performance.now();
+        // with on_finish handler
+        jsPsych.init({
+          timeline: timeline,
+          //save data every time a trial finishes
+          on_trial_finish: function(){ //Execute this after every trial
+            save_data();
+            //saveData();
+          },
+          on_interaction_data_update: function(data) {
+            viewport_width = get_viewport_size().width;
+            viewport_height = get_viewport_size().height;
+            console.log(data.event);
+            //data.subj_id = subj_name;
+            //data.participant_code = participant_code;
+            //data.screen_width = viewport_width;
+            //data.screen_height = viewport_height;
+            jsPsych.data.get().addToLast({event: data.event});
+            jsPsych.data.get().addToLast({trial: data.trial});
+            jsPsych.data.get().addToLast({time: data.time});
+            jsPsych.data.get().addToLast({screen_height: viewport_height});
+            jsPsych.data.get().addToLast({screen_width: viewport_width});
+            console.log(JSON.stringify(data))
+          },
+          on_finish: function() {
+            //saveData();
+            var end_clock = performance.now();
+            var total_time = end_clock - start_clock;
+            console.log("Total time:", total_time);
+          }
+        });
+    };
+} else {
+  var start_clock = performance.now();
+  // with on_finish handler
+  jsPsych.init({
+    timeline: timeline,
+    //save data after every trial
+    on_trial_finish: function(){ //Execute this after every trial
+      save_data();
+      //saveData();
+    },
+    on_interaction_data_update: function(data) {
+      viewport_width = get_viewport_size().width;
+      viewport_height = get_viewport_size().height;
+      //console.log(data.event);
+      //data.subj_id = subj_name;
+      //data.participant_code = participant_code;
+      //data.screen_width = viewport_width;
+      //data.screen_height = viewport_height;
+      jsPsych.data.get().addToLast({event: data.event});
+      jsPsych.data.get().addToLast({trial: data.trial});
+      jsPsych.data.get().addToLast({time: data.time});
+      jsPsych.data.get().addToLast({screen_height: viewport_height});
+      jsPsych.data.get().addToLast({screen_width: viewport_width});
+      console.log(JSON.stringify(data))
+    },
+    on_finish: function() {
+      //saveData();
+      var end_clock = performance.now();
+      var total_time = end_clock - start_clock;
+      console.log("Total time:", total_time);
+    }
+  });
+};
+
+</script>
+</html>
