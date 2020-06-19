@@ -19,6 +19,7 @@
   <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-instructions.js"></script>
   <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-grid.js"></script>
   <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-survey-text.js"></script>
+  <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-html-button-response.js"></script>
 
 
   <!--\\                                 //-->
@@ -134,16 +135,21 @@ var pestParameters = {
 
 var pest = new pest(pestParameters);
 
+// Parameters for sampling from truncated normal distribution with standard deviation
+// 10
+sd = 10;
+low = lower_brightness_change_limit; // minimum change in brightness
+
 //8 shapes
 var shapes = [[0,1,2,3,6], [0,1,2,5,8], [0,3,6,7,8], [2,5,8,6,7],
 [0,1,2,4,7], [1,4,6,7,8], [0,3,6,4,5], [3,4,5,2,8]];
 
 var q_conf = {
-  type: 'html-keyboard-response',
+  type: 'html-button-response',
   stimulus: [
-    'How confident are you? <p> (Press 1 for confident and 2 for unsure)'
+    'How clearly did you imagine the shape? <p>'
   ],
-  choices: ["1", "2"],
+  choices: ["Very clearly", "Somewhat clearly", "Somewhat vaguely", "Very vaguely"],
   data: {descriptive_trial_type: "qconf"},
   on_finish: function(data){
     data.response=jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
@@ -162,17 +168,16 @@ var transition = {
 
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////Here's where the real action happens/////////////////////
-
 instructions(timeline);
 
 practice(timeline, q_conf);
 
 var num_staircase1_trials = 40;
-staircase(num_staircase1_trials, timeline, pest, shapes, q_conf);
+staircase(num_staircase1_trials, timeline, pest, shapes);
 
 //randomize order
 if (Math.random()<0.5){
-  block_with_no_imagery(timeline, shapes, q_conf);
+  block_with_no_imagery(timeline, shapes);
   block_with_imagery(timeline, shapes, q_conf);
   //transition for coming off of imagery block
   timeline.push(transition);
@@ -181,11 +186,11 @@ if (Math.random()<0.5){
   block_with_imagery(timeline, shapes, q_conf);
   //transition for coming off of imagery block
   timeline.push(transition);
-  block_with_no_imagery(timeline, shapes, q_conf);
+  block_with_no_imagery(timeline, shapes);
 }
 
 var num_staircase2_trials = 20;
-staircase(num_staircase2_trials, timeline, pest, shapes, q_conf);
+staircase(num_staircase2_trials, timeline, pest, shapes);
 
 VVIQ(timeline);
 
@@ -231,23 +236,12 @@ function instructions(timeline){
     show_clickable_nav: true
   };
 
-  // var grid0 = {
-  //   type: 'grid',
-  //   frame_duration: 5000, //whole time
-  //   bright_block_IDs: [],
-  //   starting_brightness: starting_brightness,
-  //   brightness_change: current_brightness_change,
-  //   animation_duration: 5000, //whole time
-  //   text_above: "",
-  //   shape_in_text: [],
-  //   text_below: "The display will proceed on its own"
-  // }
   var grid_keyboard1 = {
     type: 'grid-html-keyboard-response',
     choices: ['space'],
-    stimulus: "In each trial, you will be asked to imagine shapes using the squares of a grid (such as the one below)",
-    stimulus_font: "18px Arial",
-    prompt: "Press the spacebar to continue",
+    text_above_font: "20px Arial",
+    text_above: "In each trial, you will be asked to imagine shapes using the squares of a grid (such as the one below)",
+    text_below: "Press the spacebar to continue",
     starting_brightness: starting_brightness
   };
 
@@ -259,54 +253,126 @@ function instructions(timeline){
     show_clickable_nav: true
   };
 
-  var grid1 = {
-    type: 'grid',
-    frame_duration: 5000, //whole time
+  var grid = {
+    type: 'grid-html-keyboard-response',
     bright_block_IDs: [0,3,6,7,8],
-    starting_brightness: starting_brightness,
-    brightness_change: current_brightness_change,
-    animation_duration: 5000, //whole time
+    choices: ['space'],
     text_above: "Imagine the following shape: ",
     shape_in_text: [0,3,6,7,8],
-    text_below: "The display will proceed on its own"
+    text_below: "Press the spacebar to continue.",
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change
+  };
+
+  var grid_keyboard = {
+    type: 'grid-html-keyboard-response',
+    choices: ['space'],
+    text_above: "Imagine the following shape: ",
+    shape_in_text: [0,3,6,7,8],
+    text_below: "Press the spacebar once you can picture the shape.",
+    starting_brightness: starting_brightness
   };
 
   var inst15 = {
     type: 'instructions',
     pages: [
-      'Here are a couple more examples.'
+      'We will now show you all of the shapes you will be asked to imagine.'
     ],
     show_clickable_nav: true
   };
 
-  var grid2 = {
-    type: 'grid',
-    frame_duration: 5000, //whole time
-    bright_block_IDs: [0,1,2,4,7],
-    starting_brightness: starting_brightness,
-    brightness_change: current_brightness_change,
-    animation_duration: 5000, //whole time
+  var grid1 = {
+    type: 'grid-html-keyboard-response',
+    bright_block_IDs: [0,3,6,7,8],
+    choices: ['space'],
     text_above: "Imagine the following shape: ",
-    shape_in_text: [0,1,2,4,7],
-    text_below: "The display will proceed on its own"
-  }
-
-  var grid3 = {
-    type: 'grid',
-    frame_duration: 5000, //whole time
-    bright_block_IDs: [0,1,2,3,6],
+    shape_in_text: [0,3,6,7,8],
+    text_below: "Press the spacebar to continue.",
     starting_brightness: starting_brightness,
-    brightness_change: current_brightness_change,
-    animation_duration: 5000, //whole time
+    brightness_change: current_brightness_change
+  };
+
+  var grid2 = {
+    type: 'grid-html-keyboard-response',
+    bright_block_IDs: [0,1,2,3,6],
+    choices: ['space'],
     text_above: "Imagine the following shape: ",
     shape_in_text: [0,1,2,3,6],
-    text_below: "The display will proceed on its own"
-  }
+    text_below: "Press the spacebar to continue.",
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change
+  };
+
+  var grid3 = {
+    type: 'grid-html-keyboard-response',
+    bright_block_IDs: [0,1,2,5,8],
+    choices: ['space'],
+    text_above: "Imagine the following shape: ",
+    shape_in_text: [0,1,2,5,8],
+    text_below: "Press the spacebar to continue.",
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change
+  };
+
+  var grid4 = {
+    type: 'grid-html-keyboard-response',
+    bright_block_IDs: [2,5,8,6,7],
+    choices: ['space'],
+    text_above: "Imagine the following shape: ",
+    shape_in_text: [2,5,8,6,7],
+    text_below: "Press the spacebar to continue.",
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change
+  };
+
+  var grid5 = {
+    type: 'grid-html-keyboard-response',
+    bright_block_IDs: [0,1,2,4,7],
+    choices: ['space'],
+    text_above: "Imagine the following shape: ",
+    shape_in_text: [0,1,2,4,7],
+    text_below: "Press the spacebar to continue.",
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change
+  };
+
+  var grid6 = {
+    type: 'grid-html-keyboard-response',
+    bright_block_IDs: [3,4,5,2,8],
+    choices: ['space'],
+    text_above: "Imagine the following shape: ",
+    shape_in_text: [3,4,5,2,8],
+    text_below: "Press the spacebar to continue.",
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change
+  };
+
+  var grid7 = {
+    type: 'grid-html-keyboard-response',
+    bright_block_IDs: [1,4,6,7,8],
+    choices: ['space'],
+    text_above: "Imagine the following shape: ",
+    shape_in_text: [1,4,6,7,8],
+    text_below: "Press the spacebar to continue.",
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change
+  };
+
+  var grid8 = {
+    type: 'grid-html-keyboard-response',
+    bright_block_IDs: [0,3,6,4,5],
+    choices: ['space'],
+    text_above: "Imagine the following shape: ",
+    shape_in_text: [0,3,6,4,5],
+    text_below: "Press the spacebar to continue.",
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change
+  };
 
   var inst2 = {
     type: 'instructions',
     pages: [
-      "Now try it yourself!  We will show you a blank grid. Try imagining the following shape until you can almost \"see\" it superimposed on the grid:"
+      "Now try it yourself!  We will show you a blank grid. Try to imagine the following shape until you can almost \"see\" it superimposed on the grid:"
     ],
     show_clickable_nav: true
   };
@@ -314,27 +380,80 @@ function instructions(timeline){
   var grid_keyboard = {
     type: 'grid-html-keyboard-response',
     choices: ['space'],
-    stimulus: "Imagine the letter T",
-    prompt: "Press the spacebar once you can picture the shape",
+    text_above: "Imagine the following shape: ",
+    shape_in_text: [0,3,6,4,5],
+    text_below: "Press the spacebar once you can picture the shape.",
     starting_brightness: starting_brightness
   };
 
   var inst3 = {
     type: 'instructions',
     pages: [
-      "While you are imagining, some of the squares may grow brighter. Sometimes, it will be a faint change, and other times, it will be a more obvious change. The squares that change brightness might either be the ones making up the shape which you were asked to imagine, or they might make up a different shape. Your task is to press the , key if the some squares grew brighter and the . key if not.",
-      "The task is designed to be difficult. Sometimes, you will be sure that there was a change, while other times, you'll be uncertain.  After every trial, you will be asked to rate your confidence in whether or not there was a change.  You can do this by keying in a number corresponding your confidence: 1 when you are *certain* there was a change, and 2 when you are *uncertain*.",
-      "Each trial will last 5 seconds. When asked, please try to imagine the shape for the whole time as best you can. Your data will only be useful to us if you do!",
-      "You will now begin a series of practice trials to get a better sense of the task.  You won't be asked to imagine anything yet.  Just try to detect whether any of the squares changed brightness. Afterwards, the experiment will begin. Place your fingers on the , and . keys to prepare."
+      "Great job! Each trial will last 5 seconds. When imagining a shape, please try to hold the image for the entire 5 seconds until the grid disappears."
+      ],
+    show_clickable_nav: true
+  };
+
+  var grid_blank = {
+    type: 'grid',
+    frame_duration: 5000, //whole time
+    bright_block_IDs: [],
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change,
+    animation_duration: 5000, //whole time
+    text_above: "Imagine the following shape: ",
+    shape_in_text: [0,1,2,3,6],
+  }
+
+  var inst4 = {
+    type: 'instructions',
+    pages: [
+      "Great! Now we introduce the next part of the task.",
+      "While you are imagining a shape, some of the squares may grow brighter. Sometimes, it will be an obvious change, and other times, it will be a faint change.",
+      "Next is an example of an obvious change."
     ],
     show_clickable_nav: true
   };
 
-  timeline.push(inst0, grid_keyboard1, inst1, grid1, inst15, grid2, grid3, inst2, grid_keyboard, inst3);
+  var grid_obvious_change = {
+    type: 'grid',
+    frame_duration: 50,
+    bright_block_IDs: [0,1,2,3,6],
+    starting_brightness: starting_brightness,
+    brightness_change: 40
+  };
+
+  var inst5 = {
+    type: 'instructions',
+    pages: [
+      "And next is an example of a faint change, which you might not even be able to see."
+    ],
+    show_clickable_nav: true
+  };
+
+  var grid_faint_change = {
+    type: 'grid',
+    frame_duration: 50,
+    bright_block_IDs: [0,1,2,3,6],
+    starting_brightness: starting_brightness,
+    brightness_change: 10
+  };
+
+  var inst6 = {
+    type: 'instructions',
+    pages: [
+      "The squares that change brightness might either be the ones making up the shape which you were asked to imagine, or they might make up a different shape. Your task is to indicate whether there was a change in brightness and how sure you are. You will do this by clicking the appropriate button.",
+      "The task is designed to be difficult. Sometimes, you will be sure that there was a change, while other times, you'll be uncertain.",
+      "You will now begin a series of practice trials to get a better sense of the task.  You won't be asked to imagine anything yet.  Just try to detect whether any of the squares changed brightness. Afterwards, the experiment will begin."
+    ],
+    show_clickable_nav: true
+  };
+
+  timeline.push(inst0, grid_keyboard1, inst1, grid, inst15, grid1, grid2, grid3, grid4, grid5, grid6, grid7, grid8, inst2, grid_keyboard, q_conf, inst3, grid_blank, inst4, grid_obvious_change, inst5, grid_faint_change, inst6);
 
 };
 
-function practice(timeline, q_conf){
+function practice(timeline){
   var num_practice_trials = 6;
 
   practice_trials = [];
@@ -366,11 +485,9 @@ function practice(timeline, q_conf){
     }
 
     var q_change = {
-      type: 'html-keyboard-response',
-      stimulus: [
-        'Was there a change in brightness? <p> (Press the , key for Yes or the . key for No)'
-      ],
-      choices: [",","."],
+      type: 'html-button-response',
+      stimulus: '<p>Was there a change in brightness?</p>',
+      choices: ['Definitely Yes', 'Maybe Yes', 'Maybe Not', 'Definitely Not'],
       data: {descriptive_trial_type: "q_change"},
       on_finish: function(data){
         //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
@@ -384,7 +501,7 @@ function practice(timeline, q_conf){
         //correct_choice: correctresponseCoh()
         //current_brightness_change = pest.staircase(data.correct);
       }
-    }
+    };
 
     var feedback = {
       type: 'instructions',
@@ -394,7 +511,7 @@ function practice(timeline, q_conf){
       show_clickable_nav: true
     };
 
-    timeline.push(grid, q_change, q_conf, feedback);
+    timeline.push(grid, q_change, feedback);
   }; //end of for loop
 
   var inst = {
@@ -410,7 +527,7 @@ function practice(timeline, q_conf){
   timeline.push(inst);
 }; //end of practice function
 
-function staircase(num_staircase_trials, timeline, pest, shapes, q_conf){
+function staircase(num_staircase_trials, timeline, pest, shapes){
   //maximum of trials is 64 unless I change the way they're generated
   //possible shapes or empty
   var temp = shapes;
@@ -446,11 +563,9 @@ function staircase(num_staircase_trials, timeline, pest, shapes, q_conf){
     };
 
     var q_change = {
-      type: 'html-keyboard-response',
-      stimulus: [
-        'Was there a change in brightness? <p> (Press the , key for Yes or the . key for No)'
-      ],
-      choices: [",","."],
+      type: 'html-button-response',
+      stimulus: '<p>Was there a change in brightness?</p>',
+      choices: ['Definitely Yes', 'Maybe Yes', 'Maybe Not', 'Definitely Not'],
       data: {descriptive_trial_type: "q_change"},
       on_finish: function(data){
         //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
@@ -466,12 +581,11 @@ function staircase(num_staircase_trials, timeline, pest, shapes, q_conf){
     //timeline.push(hello_trial);
     timeline.push(grid);
     timeline.push(q_change);
-    timeline.push(q_conf);
 
   }; //end for loop
 }; //end function
 
-function block_with_no_imagery(timeline, shapes, q_conf){
+function block_with_no_imagery(timeline, shapes){
   var num_trials = 16; //best as multiples of 8 for the 8 shapes
   //double the trials with a shape in them
   var temp = shapes;
@@ -507,17 +621,16 @@ function block_with_no_imagery(timeline, shapes, q_conf){
       //change: change,
       starting_brightness: starting_brightness,
       brightness_change: function(){
-        //want to make it dynamic so staircasing will work
-        return current_brightness_change
+        diff = current_brightness_change - low;
+        high = current_brightness_change + diff; //keeping the truncation symmetric
+        return trunc_randn(current_brightness_change, sd, low, high);
       },
     };
 
     var q_change = {
-      type: 'html-keyboard-response',
-      stimulus: [
-        'Was there a change in brightness? <p> (Press the . key for Yes or the left for No)'
-      ],
-      choices: [",","."],
+      type: 'html-button-response',
+      stimulus: '<p>Was there a change in brightness?</p>',
+      choices: ['Definitely Yes', 'Maybe Yes', 'Maybe Not', 'Definitely Not'],
       data: {descriptive_trial_type: "q_change"},
       on_finish: function(data){
         //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
@@ -532,7 +645,6 @@ function block_with_no_imagery(timeline, shapes, q_conf){
     //Push the trials into the timeline array
     timeline.push(grid);
     timeline.push(q_change);
-    timeline.push(q_conf);
 
   } //end for loop
 
@@ -618,11 +730,9 @@ function block_with_imagery(timeline, shapes, q_conf){
     };
 
     var q_change = {
-      type: 'html-keyboard-response',
-      stimulus: [
-        'Was there a change in brightness? <p> (Press the , key for Yes or the . key for No)'
-      ],
-      choices: [",","."],
+      type: 'html-button-response',
+      stimulus: '<p>Was there a change in brightness?</p>',
+      choices: ['Definitely Yes', 'Maybe Yes', 'Maybe Not', 'Definitely Not'],
       data: {descriptive_trial_type: "q_change"},
       on_finish: function(data){
         //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
@@ -817,7 +927,29 @@ function randomStr(len, arr) {
     arr[Math.floor(Math.random() * arr.length)];
   }
   return ans;
-}
+};
+
+// Standard Normal variate using Box-Muller transform.
+function randn_bm() {
+    var u1 = 0, u2 = 0;
+    while(u1 === 0) u1 = Math.random(); //Converting [0,1) to (0,1)
+    while(u2 === 0) u2 = Math.random();
+    return Math.sqrt( -2.0 * Math.log( u1 ) ) * Math.cos( 2.0 * Math.PI * u2 );
+};
+
+// Normal variate with mean mu and standard deviation sd
+function randn(mu, sd) {
+    return(sd * randn_bm() + mu);
+};
+
+// Normal variate with mean mu and standard deviation sd.
+// Lower limit is low, upper limit is high
+function trunc_randn(mu, sd, low, high){
+  z = low-1;
+  while(z < low || z > high) z = randn(mu, sd);
+  return z;
+};
+
 
 //-----------------Your code above this line-----------------//
 ///////////////////////////////////////////////////////////////
