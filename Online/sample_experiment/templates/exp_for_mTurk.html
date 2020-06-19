@@ -152,7 +152,7 @@ var q_conf = {
   choices: ["Very clearly", "Somewhat clearly", "Somewhat vaguely", "Very vaguely"],
   data: {descriptive_trial_type: "qconf"},
   on_finish: function(data){
-    data.response=jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
+    data.response = data.button_pressed;
   }
 };
 
@@ -168,7 +168,7 @@ var transition = {
 
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////Here's where the real action happens/////////////////////
-instructions(timeline);
+//instructions(timeline);
 
 practice(timeline, q_conf);
 
@@ -492,8 +492,14 @@ function practice(timeline){
       on_finish: function(data){
         //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
         jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
-        data.response = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
-        data.correct = data.response == data.correct_response
+        data.response = data.button_pressed
+
+        if (data.correct_response=="Yes") {
+          //responded yes
+          data.correct = (data.response==0 || data.response==1)
+        } else {
+          data.correct = (data.response==2 || data.response==3)
+        }
         console.log("correct ", data.correct);
         last_trial_was_correct = data.correct;
         correct_answer = data.correct_response;
@@ -506,7 +512,7 @@ function practice(timeline){
     var feedback = {
       type: 'instructions',
       pages: function(){
-        return [getText(last_trial_was_correct, correct_answer)]
+        return [getText(last_trial_was_correct, correct_response_fun())]
       },
       show_clickable_nav: true
     };
@@ -570,8 +576,18 @@ function staircase(num_staircase_trials, timeline, pest, shapes){
       on_finish: function(data){
         //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
         jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
-        data.response = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
-        data.correct = data.response == data.correct_response
+        data.response = data.button_pressed;
+
+        if (data.correct_response=="Yes") {
+          //responded yes
+          data.correct = (data.response==0 || data.response==1)
+        } else {
+          data.correct = (data.response==2 || data.response==3)
+        }
+        console.log("correct ", data.correct);
+        last_trial_was_correct = data.correct;
+        correct_answer = data.correct_response;
+        console.log("last trial was correct", last_trial_was_correct);
         //correct_choice: correctresponseCoh()
         current_brightness_change = pest.staircase(data.correct);
       }
@@ -635,8 +651,18 @@ function block_with_no_imagery(timeline, shapes){
       on_finish: function(data){
         //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
         jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
-        data.response = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
-        data.correct = data.response == data.correct_response
+        data.response = data.button_pressed
+
+        if (data.correct_response=="Yes") {
+          //responded yes
+          data.correct = (data.response==0 || data.response==1)
+        } else {
+          data.correct = (data.response==2 || data.response==3)
+        }
+        console.log("correct ", data.correct);
+        last_trial_was_correct = data.correct;
+        correct_answer = data.correct_response;
+        console.log("last trial was correct", last_trial_was_correct);
         //correct_choice: correctresponseCoh()
         //current_brightness_change = pest.staircase(data.correct);
       }
@@ -737,8 +763,18 @@ function block_with_imagery(timeline, shapes, q_conf){
       on_finish: function(data){
         //correct response has to be dynamically changed because whether coherence is 0 or currcoh is dynamically changed
         jsPsych.data.get().addToLast({correct_response: correct_response_fun()});
-        data.response = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press);
-        data.correct = data.response == data.correct_response;
+        data.response = data.button_pressed
+
+        if (data.correct_response=="Yes") {
+          //responded yes
+          data.correct = (data.response==0 || data.response==1)
+        } else {
+          data.correct = (data.response==2 || data.response==3)
+        }
+        console.log("correct ", data.correct);
+        last_trial_was_correct = data.correct;
+        correct_answer = data.correct_response;
+        console.log("last trial was correct", last_trial_was_correct);
         //correct_choice: correctresponseCoh()
         //current_brightness_change = pest.staircase(data.correct);
       }
@@ -895,13 +931,7 @@ function shuffle_both(array, array2) {
 
 //This function gets the text for feedback
 function getText(correct, correct_answer){
-  if (correct_answer.toString() == ","){
-    ans = "Yes";
-  } else {
-    ans = "No";
-  };
-
-  var text = ans + ' was the correct answer'
+  var text = correct_answer + ' was the correct answer'
   if (correct==true){
     text = '<p style="color:lime;"> Great job! ' + text + '</p>';
   } else	{
@@ -913,9 +943,9 @@ function getText(correct, correct_answer){
 function correct_response_fun(){
   //or could have to do with blocks
   if (bright_block_IDs.length == 0){
-    return "." //no
+    return "No" //no
   } else {
-    return "," //yes
+    return "Yes" //yes
   }
 };
 
