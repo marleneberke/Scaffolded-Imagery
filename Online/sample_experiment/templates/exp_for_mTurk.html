@@ -168,7 +168,7 @@ var transition = {
 
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////Here's where the real action happens/////////////////////
-//instructions(timeline);
+instructions(timeline);
 
 practice(timeline, q_conf);
 
@@ -496,14 +496,23 @@ function practice(timeline){
 
         if (data.correct_response=="Yes") {
           //responded yes
-          data.correct = (data.response==0 || data.response==1)
+          if (data.response==0 || data.response==1){
+            data.correct = 1;
+          } else {
+            data.correct = 0;
+          }
         } else {
-          data.correct = (data.response==2 || data.response==3)
+          //responded no
+          if (data.response==2 || data.response==3){
+            data.correct = 1;
+          } else {
+            data.correct = 0;
+          }
         }
         console.log("correct ", data.correct);
-        last_trial_was_correct = data.correct;
         correct_answer = data.correct_response;
-        console.log("last trial was correct", last_trial_was_correct);
+        last_trial_was_correct = data.correct;
+        //console.log("last trial was correct", last_trial_was_correct);
         //correct_choice: correctresponseCoh()
         //current_brightness_change = pest.staircase(data.correct);
       }
@@ -580,9 +589,18 @@ function staircase(num_staircase_trials, timeline, pest, shapes){
 
         if (data.correct_response=="Yes") {
           //responded yes
-          data.correct = (data.response==0 || data.response==1)
+          if (data.response==0 || data.response==1){
+            data.correct = 1;
+          } else {
+            data.correct = 0;
+          }
         } else {
-          data.correct = (data.response==2 || data.response==3)
+          //responded no
+          if (data.response==2 || data.response==3){
+            data.correct = 1;
+          } else {
+            data.correct = 0;
+          }
         }
         console.log("correct ", data.correct);
         last_trial_was_correct = data.correct;
@@ -655,9 +673,18 @@ function block_with_no_imagery(timeline, shapes){
 
         if (data.correct_response=="Yes") {
           //responded yes
-          data.correct = (data.response==0 || data.response==1)
+          if (data.response==0 || data.response==1){
+            data.correct = 1;
+          } else {
+            data.correct = 0;
+          }
         } else {
-          data.correct = (data.response==2 || data.response==3)
+          //responded no
+          if (data.response==2 || data.response==3){
+            data.correct = 1;
+          } else {
+            data.correct = 0;
+          }
         }
         console.log("correct ", data.correct);
         last_trial_was_correct = data.correct;
@@ -767,9 +794,18 @@ function block_with_imagery(timeline, shapes, q_conf){
 
         if (data.correct_response=="Yes") {
           //responded yes
-          data.correct = (data.response==0 || data.response==1)
+          if (data.response==0 || data.response==1){
+            data.correct = 1;
+          } else {
+            data.correct = 0;
+          }
         } else {
-          data.correct = (data.response==2 || data.response==3)
+          //responded no
+          if (data.response==2 || data.response==3){
+            data.correct = 1;
+          } else {
+            data.correct = 0;
+          }
         }
         console.log("correct ", data.correct);
         last_trial_was_correct = data.correct;
