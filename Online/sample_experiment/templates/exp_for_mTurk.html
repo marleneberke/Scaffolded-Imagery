@@ -20,6 +20,7 @@
   <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-grid.js"></script>
   <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-survey-text.js"></script>
   <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-html-button-response.js"></script>
+  <script src="../static/js/jsPsych-6.0.3/plugins/jspsych-fullscreen.js"></script>
 
 
   <!--\\                                 //-->
@@ -149,7 +150,7 @@ var q_conf = {
   stimulus: [
     'How clearly did you imagine the shape? <p>'
   ],
-  choices: ["Very clearly", "Somewhat clearly", "Somewhat vaguely", "Very vaguely"],
+  choices: ["Clearly and visibly, as if there", "Somewhat", "Dim", "I could not see anything at all"],
   data: {descriptive_trial_type: "qconf"},
   on_finish: function(data){
     data.response = data.button_pressed;
@@ -161,36 +162,37 @@ var transition = {
   pages: [
     "For the next several trials, you don't need to imagine anything."
   ],
-  show_clickable_nav: true
+  show_clickable_nav: true,
+  button_label_next: "BEGIN"
 };
 
 
 
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////Here's where the real action happens/////////////////////
-instructions(timeline);
-
-practice(timeline, q_conf);
-
-var num_staircase1_trials = 40;
-staircase(num_staircase1_trials, timeline, pest, shapes);
-
-//randomize order
-if (Math.random()<0.5){
-  block_with_no_imagery(timeline, shapes);
-  block_with_imagery(timeline, shapes, q_conf);
-  //transition for coming off of imagery block
-  timeline.push(transition);
-
-} else {
-  block_with_imagery(timeline, shapes, q_conf);
-  //transition for coming off of imagery block
-  timeline.push(transition);
-  block_with_no_imagery(timeline, shapes);
-}
-
-var num_staircase2_trials = 20;
-staircase(num_staircase2_trials, timeline, pest, shapes);
+// instructions(timeline);
+//
+// practice(timeline, q_conf);
+//
+// var num_staircase1_trials = 40;
+// staircase(num_staircase1_trials, timeline, pest, shapes);
+//
+// //randomize order
+// if (Math.random()<0.5){
+//   block_with_no_imagery(timeline, shapes);
+//   block_with_imagery(timeline, shapes, q_conf);
+//   //transition for coming off of imagery block
+//   timeline.push(transition);
+//
+// } else {
+//   block_with_imagery(timeline, shapes, q_conf);
+//   //transition for coming off of imagery block
+//   timeline.push(transition);
+//   block_with_no_imagery(timeline, shapes);
+// }
+//
+// var num_staircase2_trials = 20;
+// staircase(num_staircase2_trials, timeline, pest, shapes);
 
 VVIQ(timeline);
 
@@ -212,7 +214,39 @@ function instructions(timeline){
     ],
     data: {descriptive_trial_type: "get_worker_ID"}
   };
-  timeline.push(survey);
+
+  var browser = {
+    type: 'html-keyboard-response',
+    choices: ['space'],
+    stimulus: "<p>This experiment requires you to be using a desktop browser. The program should have automatically detected whether you are using a phone or a tablet. <p> <p> <strong>If you are using a phone or tablet and it has still allowed you to continue, please reopen the experiment in a desktop browser now. </strong> <p><p> If you can only use a tablet or a phone, and are unable to switch to a desktop browser, please quit the experiment and return the HIT. <p> If you are on a desktop browser -- great! Press the spacebar to continue.</p>",
+    prompt: "<h3>PRESS THE SPACEBAR TO CONTINUE</h3><p></p><p></p>",
+    data: {descriptive_trial_type: "browser"}
+  };
+
+  var fullscreen = {
+    type: 'fullscreen',
+    fullscreen_mode: true,
+    button_label: 'Enter Fullscreen',
+    message: '<p>This experiment requires you to be in full screen mode.  The experiment will switch to full screen mode when you press the button below.</p>',
+    data: {descriptive_trial_type: "fullscreen"}
+  };
+
+  // var fullscreen2 = {
+  //   type: 'html-keyboard-response',
+  //   choices: ['space'],
+  //   stimulus: "<p>This experiment requires you to be in full screen mode. The program may have done this automatically already after you clicked the button in the previous screen.  <strong>If you are still not in full screen mode, please maximize your browser window now.</strong> (If you are using a Mac, you can set your browser to full screen mode by pressing the green button at the top right [as in the  image below].  If you are using a PC, you can set your browser to full screen mode by pressing the F11 key.  If this did not have any effect, you may need to press the Fn key while pressing the F11 key.)</p><p>(And don't worry, we'll bring it back to the normal browser size later.  If you do need to leave in the middle, you can press the ESC key -- but please avoid this; your responses are only useful to us if you stay in this mode until the end of the experiment.)</p><p>If your browser window is maximized, press the spacebar to continue.</p>"+"<div style='float: center'><img src='images/sample_click.png' style='width: 20%'></img></div>"
+  // };
+
+  // var fullscreen = {
+  //   type: 'html-keyboard-response',
+  //   choices: ['y'],
+  //   stimulus: "<p>This experiment requires you to be using a desktop browser. The program should have automatically detected whether you are using a phone or a tablet. <p> <p> <strong>If you are using a phone or tablet and it has still allowed you to continue, please reopen the experiment in a desktop browser now. <strong> <p><p> If you can only use a tablet or a phone, and are unable to switch to a desktop browser, please quit the experiment and return the HIT. <p> If you are on a desktop browser -- great! Press the spacebar to continue.</p>",
+  //   prompt: "<h3>PRESS THE SPACEBAR KEY TO CONTINUE</h3><p></p><p></p>",
+  //   data: {descriptive_trial_type: "instructions"}
+  // };
+
+   // Please make your browser window full screen, and keep it full screen for the whole experiment.
+   //
 
   var consent_duration = 20;
   var consent_pay = "$" + (consent_duration * 8/60).toFixed(2).toString();
@@ -225,14 +259,11 @@ function instructions(timeline){
     data: {descriptive_trial_type: "consent"}
   };
 
-  timeline.push(consent);
-
   var inst0 = {
     type: 'instructions',
     pages: [
-      'Welcome to the experiment. Please make your browser window full screen, and keep it full screen for the whole experiment.',
-      'In this experiment, you will complete multiple repetitions of the same task.'
-    ],
+      'Welcome to the experiment. Thank you for choosing to participate.',
+      ],
     show_clickable_nav: true
   };
 
@@ -240,7 +271,7 @@ function instructions(timeline){
     type: 'grid-html-keyboard-response',
     choices: ['space'],
     text_above_font: "20px Arial",
-    text_above: "In each trial, you will be asked to imagine shapes using the squares of a grid (such as the one below)",
+    text_above: "In each trial, you will see a 3 by 3 grid of squares, such as the one below.",
     text_below: "Press the spacebar to continue",
     starting_brightness: starting_brightness
   };
@@ -248,38 +279,38 @@ function instructions(timeline){
   var inst1 = {
     type: 'instructions',
     pages: [
-      'For instance, you might be asked to imagine an L shape superimposed on the grid. On the next page, we have highlighted the relevant squares to show you what we mean.'
+      'You will then be asked to imagine a shape on the grid.  You will be asked to imagine any one of a number of shapes. In the following pages, we highlight the relevant squares to show you what we mean.'
     ],
     show_clickable_nav: true
   };
 
-  var grid = {
-    type: 'grid-html-keyboard-response',
-    bright_block_IDs: [0,3,6,7,8],
-    choices: ['space'],
-    text_above: "Imagine the following shape: ",
-    shape_in_text: [0,3,6,7,8],
-    text_below: "Press the spacebar to continue.",
-    starting_brightness: starting_brightness,
-    brightness_change: current_brightness_change
-  };
-
-  var grid_keyboard = {
-    type: 'grid-html-keyboard-response',
-    choices: ['space'],
-    text_above: "Imagine the following shape: ",
-    shape_in_text: [0,3,6,7,8],
-    text_below: "Press the spacebar once you can picture the shape.",
-    starting_brightness: starting_brightness
-  };
-
-  var inst15 = {
-    type: 'instructions',
-    pages: [
-      'We will now show you all of the shapes you will be asked to imagine.'
-    ],
-    show_clickable_nav: true
-  };
+  // var grid = {
+  //   type: 'grid-html-keyboard-response',
+  //   bright_block_IDs: [0,3,6,7,8],
+  //   choices: ['space'],
+  //   text_above: "Imagine the following shape: ",
+  //   shape_in_text: [0,3,6,7,8],
+  //   text_below: "Press the spacebar to continue.",
+  //   starting_brightness: starting_brightness,
+  //   brightness_change: current_brightness_change
+  // };
+  //
+  // var grid_keyboard = {
+  //   type: 'grid-html-keyboard-response',
+  //   choices: ['space'],
+  //   text_above: "Imagine the following shape: ",
+  //   shape_in_text: [0,3,6,7,8],
+  //   text_below: "Press the spacebar once you can picture the shape.",
+  //   starting_brightness: starting_brightness
+  // };
+  //
+  // var inst15 = {
+  //   type: 'instructions',
+  //   pages: [
+  //     'We will now show you all of the shapes you will be asked to imagine.'
+  //   ],
+  //   show_clickable_nav: true
+  // };
 
   var grid1 = {
     type: 'grid-html-keyboard-response',
@@ -369,6 +400,19 @@ function instructions(timeline){
     brightness_change: current_brightness_change
   };
 
+  var grid9 = {
+    type: 'grid-html-keyboard-response',
+    bright_block_IDs: [0,3,6,7,8],
+    choices: ['space'],
+    text_above: "Please note that when we ask you to imagine a shape, we want you to use the whole grid.",
+    text_above_font: "20px Arial",
+    shape_in_text: [0,3,6,7,8],
+    text_below: "Press the spacebar to continue.",
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change,
+    outline: true
+  };
+
   var inst2 = {
     type: 'instructions',
     pages: [
@@ -386,10 +430,22 @@ function instructions(timeline){
     starting_brightness: starting_brightness
   };
 
+  var q_conf1 = {
+    type: 'html-button-response',
+    stimulus: [
+      'You will also be asked how well you were able to imagine the shape. Please select one of the options below. <p>'
+    ],
+    choices: ["Clearly and visibly, as if there", "Somewhat", "Dim", "I could not see anything at all"],
+    data: {descriptive_trial_type: "qconf"},
+    on_finish: function(data){
+      data.response = data.button_pressed;
+    }
+  };
+
   var inst3 = {
     type: 'instructions',
     pages: [
-      "Great job! Each trial will last 5 seconds. When imagining a shape, please try to hold the image for the entire 5 seconds until the grid disappears."
+      "Great! Each trial will last for 5 seconds, so please try to hold the image for 5 seconds -- after which the grid will disappear.  Give it a try!"
       ],
     show_clickable_nav: true
   };
@@ -408,9 +464,26 @@ function instructions(timeline){
   var inst4 = {
     type: 'instructions',
     pages: [
-      "Great! Now we introduce the next part of the task.",
-      "While you are imagining a shape, some of the squares may grow brighter. Sometimes, it will be an obvious change, and other times, it will be a faint change.",
-      "Next is an example of an obvious change."
+      "Now, while you are imagining a shape, some of the squares may grow brighter."
+    ],
+    show_clickable_nav: true
+  };
+
+  var grid10 = {
+    type: 'grid-html-keyboard-response',
+    choices: ['space'],
+    text_above: "Sometimes, it will be an obvious change (left), and other times, it will be a faint change (right).",
+    text_above_font: "20px Arial",
+    bright_block_IDs: [0,1,2,3,6],
+    text_below: "Press the spacebar to continue.",
+    starting_brightness: starting_brightness,
+    compare_obvious_and_faint: true
+  };
+
+  var inst45 = {
+    type: 'instructions',
+    pages: [
+      "The squares will gradually change their brightness. Press NEXT for an example of an obvious change."
     ],
     show_clickable_nav: true
   };
@@ -426,7 +499,7 @@ function instructions(timeline){
   var inst5 = {
     type: 'instructions',
     pages: [
-      "And next is an example of a faint change, which you might not even be able to see."
+      "And next is an example of a faint change, which you might not even see -- but this is okay!"
     ],
     show_clickable_nav: true
   };
@@ -442,19 +515,64 @@ function instructions(timeline){
   var inst6 = {
     type: 'instructions',
     pages: [
-      "The squares that change brightness might either be the ones making up the shape which you were asked to imagine, or they might make up a different shape. Your task is to indicate whether there was a change in brightness and how sure you are. You will do this by clicking the appropriate button.",
-      "The task is designed to be difficult. Sometimes, you will be sure that there was a change, while other times, you'll be uncertain.",
+      "Sometimes, the squares will change in the shape you were imagining, and other times, they won't. The following will be a change in the shape you're imagining."
+    ],
+    show_clickable_nav: true
+  };
+
+  var grid_same = {
+    type: 'grid',
+    frame_duration: 50,
+    bright_block_IDs: [0,1,2,3,6],
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change,
+    text_above: "Imagine the shape: ",
+    shape_in_text: [0,1,2,3,6],
+    data: {descriptive_trial_type: "instructions"}
+  };
+
+  var inst7 = {
+    type: 'instructions',
+    pages: [
+      "The following will be a change in a different shape."
+    ],
+    show_clickable_nav: true
+  };
+
+  var grid_different = {
+    type: 'grid',
+    frame_duration: 50,
+    bright_block_IDs: [0,1,2,3,6],
+    starting_brightness: starting_brightness,
+    brightness_change: current_brightness_change,
+    text_above: "Imagine the shape: ",
+    shape_in_text: [1,4,6,7,8],
+    data: {descriptive_trial_type: "instructions"}
+  };
+
+  var q_change = {
+    type: 'html-button-response',
+    stimulus: "Your task is simple.  Just indicate whether there was a change in brightness — regardless of what the shape of the squares that changed is — and how sure you are. You will do this by clicking one of four buttons, as shown below.",
+    choices: ['Definitely Yes', 'Maybe Yes', 'Maybe Not', 'Definitely Not'],
+    data: {descriptive_trial_type: "instructions"},
+  };
+
+  var inst8 = {
+    type: 'instructions',
+    pages: [
+      "The task is designed to be difficult. Sometimes, you will be sure that there was a change, while other times, you'll be uncertain.  This is okay!  Just give it your best each time.  And please try your best to imagine the shape for the entire 5 seconds.  Your data will only be useful to us if you do.",
       "You will now begin a series of practice trials to get a better sense of the task.  You won't be asked to imagine anything yet.  Just try to detect whether any of the squares changed brightness. Afterwards, the experiment will begin."
     ],
     show_clickable_nav: true
   };
 
-  timeline.push(inst0, grid_keyboard1, inst1, grid, inst15, grid1, grid2, grid3, grid4, grid5, grid6, grid7, grid8, inst2, grid_keyboard, q_conf, inst3, grid_blank, inst4, grid_obvious_change, inst5, grid_faint_change, inst6);
+  timeline.push(survey, browser, fullscreen, consent);
+  timeline.push(inst0, grid_keyboard1, inst1, grid1, grid2, grid3, grid4, grid5, grid6, grid7, grid8, grid9, inst2, grid_keyboard, q_conf1, inst3, grid_blank, inst4, grid10, inst45, grid_obvious_change, inst5, grid_faint_change, inst6, grid_same, inst7, grid_different, q_change, inst8);
 
 };
 
 function practice(timeline){
-  var num_practice_trials = 6;
+  var num_practice_trials = 4;
 
   practice_trials = [];
 
@@ -532,9 +650,8 @@ function practice(timeline){
   var inst = {
     type: 'instructions',
     pages: [
-      'Great job! The practice trials are over, and it is time to start the experiment!',
-      'The shapes may get fainter and harder to detect -- but this is okay!  Just do your best in each trial.  This is a difficult task, and will require concentration.  Please do your best to stay focused throughout the task. Again, your data will only be useful to us if you do.',
-      'Get ready for the challenge!'
+      'Now it’s time to start the experiment. The shapes may get fainter and harder to detect -- but this is okay!  Just do your best in each trial.  This is a difficult task, and will require concentration.  Please do your best to stay focused throughout the task. Again, your data will only be useful to us if you do.',
+      'The experiment will be broken into different sections.  After each section, you’ll be able to take a short break.  Please get comfortable, and press NEXT to begin.'
     ],
     show_clickable_nav: true
   };
@@ -710,7 +827,8 @@ function block_with_imagery(timeline, shapes, q_conf){
     pages: [
       'In this section, you will be asked to imagine shapes before detecting whether or not a shape has appeared.',
     ],
-    show_clickable_nav: true
+    show_clickable_nav: true,
+    button_label_next: "BEGIN"
   };
 
   timeline.push(inst);
@@ -833,6 +951,24 @@ function VVIQ(timeline){
     data: {descriptive_trial_type: 'vviq_intro'}
   };
 
+  var vviq_break = {
+    type: 'html-keyboard-response',
+    choices: ['space'],
+    stimulus: "<div style='position: absolute; margin: 0 auto; top: 20%; left: 10%; width: 75%'><p style='text-align: left'>Now imagine with your eyes CLOSED.<br><br>Press the spacebar to begin.</div>",
+    data: {descriptive_trial_type: 'vviq'}
+  };
+
+  var vviq_heading_prompt = function(eye_condition, vviq_heading){
+    var trial_prompt = {
+      type: 'html-keyboard-response',
+      choices: ['space'],
+      stimulus: "<div style='position: absolute; margin: 0 auto; top: 20%; left: 10%; width: 75%'><p style='text-align: left'>Now imagine with your eyes <strong>"+eye_condition+".</strong> <br><br> <strong>"+vviq_heading+"</strong> <br><br> Consider carefully the picture that comes before your mind's eye.<br><br>Press the spacebar to continue.</div>",
+      data: {descriptive_trial_type: 'vviq'},
+    };
+    return trial_prompt;
+  };
+
+
   var vviq_prompt = function(eye_condition, vviq_heading, vviq_item, vviq_id){
     var trial_prompt = {
       type: 'html-keyboard-response',
@@ -871,6 +1007,7 @@ function VVIQ(timeline){
   var item_count = 1;
   for (p = 1; p < num_vviq_headings+1; p++){
     for (i = 0; i < num_vviq_items; i++){
+      if (i == 0){ timeline.push(vviq_heading_prompt('OPEN', vviq_heading_sequence[p]))};
       timeline.push(vviq_prompt('OPEN', vviq_heading_sequence[p], vviq_item_sequence[item_count], item_count));
       item_count++;
     };
@@ -888,6 +1025,7 @@ function VVIQ(timeline){
   var item_count = 16;
   for (p = 1; p < num_vviq_headings+1; p++){
     for (i = 0; i < num_vviq_items; i++){
+      if (i == 0){ timeline.push(vviq_heading_prompt('CLOSED', vviq_heading_sequence[p]))};
       timeline.push(vviq_prompt('CLOSED', vviq_heading_sequence[p], vviq_item_sequence[item_count-15], item_count));
       item_count++;
     };
@@ -940,6 +1078,22 @@ function give_code(timeline, participant_code){
     data: {descriptive_trial_type: "give_code"}
   };
   timeline.push(give_code);
+
+  var exit_fullscreen = {
+    type: 'fullscreen',
+    fullscreen_mode: false,
+    button_label: 'Exit Fullscreen',
+    message: '<p>You can now exit full screen mode.</p>',
+    on_finish: function(data){
+      viewport_width = get_viewport_size().width;
+      viewport_height = get_viewport_size().height;
+      data.screen_width = viewport_width;
+      data.screen_height = viewport_height;
+      console.log("ID", subj_name, "W", viewport_width, "H", viewport_height)
+    }
+  };
+
+  timeline.push(exit_fullscreen);
 }
 //shuffles two arrays in the same way
 function shuffle_both(array, array2) {
