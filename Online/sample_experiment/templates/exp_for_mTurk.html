@@ -170,29 +170,29 @@ var transition = {
 
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////Here's where the real action happens/////////////////////
-// instructions(timeline);
-//
-// practice(timeline, q_conf);
-//
-// var num_staircase1_trials = 40;
-// staircase(num_staircase1_trials, timeline, pest, shapes);
-//
-// //randomize order
-// if (Math.random()<0.5){
-//   block_with_no_imagery(timeline, shapes);
-//   block_with_imagery(timeline, shapes, q_conf);
-//   //transition for coming off of imagery block
-//   timeline.push(transition);
-//
-// } else {
-//   block_with_imagery(timeline, shapes, q_conf);
-//   //transition for coming off of imagery block
-//   timeline.push(transition);
-//   block_with_no_imagery(timeline, shapes);
-// }
-//
-// var num_staircase2_trials = 20;
-// staircase(num_staircase2_trials, timeline, pest, shapes);
+instructions(timeline);
+
+practice(timeline, q_conf);
+
+var num_staircase1_trials = 40;
+staircase(num_staircase1_trials, timeline, pest, shapes);
+
+//randomize order
+if (Math.random()<0.5){
+  block_with_no_imagery(timeline, shapes);
+  block_with_imagery(timeline, shapes, q_conf);
+  //transition for coming off of imagery block
+  timeline.push(transition);
+
+} else {
+  block_with_imagery(timeline, shapes, q_conf);
+  //transition for coming off of imagery block
+  timeline.push(transition);
+  block_with_no_imagery(timeline, shapes);
+}
+
+var num_staircase2_trials = 20;
+staircase(num_staircase2_trials, timeline, pest, shapes);
 
 VVIQ(timeline);
 
